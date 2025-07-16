@@ -1,7 +1,0 @@
-#To modify link to the server, change index.html under
-
-/gt/research_development/qifa/wiki-ctgenometech03/.vuepress/dist/index.html
-
-then copy all files to somewhere in ctgenometech where there is no sudo required and then sudo mv those files to 
-
-/var/www/html
