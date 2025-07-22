@@ -20,13 +20,13 @@ The codebase supporting this system is primarily written in Bash and R, with som
 
 ---
 ## Local Installation (via Git)
-1. Recommended: Install RStudio
+1. Recommended: 
   Download and install [RStudio](https://posit.co/download/rstudio-desktop/) for easier management of R projects.
 
-2. Clone the Repository
-git clone https://github.com/akinyanju/Sequencing-Dashboard.git
+2. Clone the Repository: -
+ "git clone https://github.com/akinyanju/Sequencing-Dashboard.git"
 
-3. Configure File Paths
+3. Configure File Paths: - 
 Open configPaths.R and update these two paths:
 a. base_path     <- file.path("/Fake/Path/ShinyAppCodes")
 b. dir_InputFile <- file.path("/Fake/Path/ShinyAppCodes/SampleData")
