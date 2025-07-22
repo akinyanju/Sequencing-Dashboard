@@ -24,7 +24,7 @@ The codebase supporting this system is primarily written in Bash and R, with som
   Download and install [RStudio](https://posit.co/download/rstudio-desktop/) for easier management of R projects.
 
 2. Clone the Repository
-git clone <repository_link>
+git clone https://github.com/akinyanju/Sequencing-Dashboard.git
 
 3. Configure File Paths
 Open configPaths.R and update these two paths:
@@ -32,6 +32,7 @@ a. base_path     <- file.path("/Fake/Path/ShinyAppCodes")
 b. dir_InputFile <- file.path("/Fake/Path/ShinyAppCodes/SampleData")
 4. Open Library/libraries.R and update:
 a. base_path <- file.path("/Fake/Path/ShinyAppCodes")
+b. in production, make sure base_path <-"/srv/shiny-server/" is uncommented and the path in your local macbook is commented out
 5.  Manually open ~/ShinyAppCodes/.usersProfile.json and add your email under the Admin group or any other appropriate group to gain dashboard access.
 5.  Adjust for Local Development (Optional)
 If your MacBook or local machine cannot send one-time passcodes (due to mailx issues):
