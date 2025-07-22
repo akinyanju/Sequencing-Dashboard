@@ -27,12 +27,14 @@ server <- function(input, output, session) {
     }
   }
   ####################################################################################
+ 
   # ---- Reactive Polling to Auto-Update users_data including Group and Email ----
   users_data_reactive <- reactivePoll(
     intervalMillis = 10000,
     session = session,
     checkFunc = function() file.info(json_path)$mtime,
     valueFunc = function() {
+      sync_json_with_duckdb_labs(con, json_path) #This below one liner check and import new lab.
       users_data <- jsonlite::fromJSON(readLines(json_path, warn = FALSE))
       valid_groups <- names(users_data)
       expanded_users_data <- users_data
@@ -200,9 +202,22 @@ server <- function(input, output, session) {
                  style = "display: flex;justify-content: center;align-items: flex-start;padding-top: 150px;min-height: 100vh;",
                  div(
                    style = "width: 400px; background-color: #e6f2ff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
-                   div(class = "form-group",
-                       tags$label("Select Your Group", `for` = "group"),
-                       selectInput("group", label = NULL, choices = c("", setdiff(users_data_reactive()$valid_groups, c("NULL", "jax"))), width = "100%")
+                   div(
+                     class = "form-group",
+                     tags$label("Select Your Group", `for` = "group"),
+                     
+                     # Properly sorted selectInput
+                     selectInput(
+                       "group",
+                       label = NULL,
+                       choices = {
+                         groups <- setdiff(users_data_reactive()$valid_groups, c("NULL", "jax"))
+                         groups_sorted <- sort(setdiff(groups, "Admin"))
+                         if ("Admin" %in% groups) groups_sorted <- c(groups_sorted, "Admin")
+                         c("", groups_sorted)
+                       },
+                       width = "100%"
+                     )
                    ),
                    div(class = "next-button-container",
                        actionButton("next_to_email", "Next", class = "btn btn-primary btn-block")
@@ -212,7 +227,8 @@ server <- function(input, output, session) {
              ),
              "email" = {
                req(values$selected_group)
-               emails <- users_data_reactive()$expanded[[values$selected_group]]
+               emails_raw <- users_data_reactive()$expanded[[values$selected_group]]
+               emails <- sort(unlist(emails_raw))
                if (length(emails) == 0) {
                  tagList(
                    tags$p(
@@ -368,86 +384,86 @@ server <- function(input, output, session) {
   ####################################################################################
   #DEV MODE CODE ONLY. IT MUST BE COMMENTED OUT WHEN SCRIPT IS IN PRODUCTION MODE.
   # —— DEV MODE: show debug code only ——————————————————————
-   # observeEvent(input$send_otc, {
-   #   req(input$email)
-   #   if (input$email == "") {
-   #     showNotification("Please select an email.", type = "error", duration = 5)
-   #     return()
-   #   }
-   #   values$selected_email <- input$email
-   # 
-   #   # generate + store
-   #   code <- sprintf("%06d", sample(0:999999, 1))
-   #   otc_storage[[input$email]] <- list(code = code, timestamp = Sys.time())
-   # 
-   #   # *** LOG DEV SEND ***
-   #   write_log(
-   #     log_Dashboard,
-   #     "OTC_DEV_SENT",
-   #     paste0("Mode=DEV, Email='", input$email, "', Code='", code, "'")
-   #   )
-   # 
-   #   # debug popup only
-   #   showNotification(paste("DEBUG CODE:", code), type = "message", duration = 15)
-   #   values$stage <- "verify"
-   # })
-   # 
-   # observeEvent(input$send_otc, {
-   #   req(input$email)
-   #   if (input$email == "") {
-   #     showNotification("Please select an email.", type = "error", duration = 5)
-   #     return()
-   #   }
-   #   values$selected_email <- input$email
-   #   code <- sprintf("%06d", sample(0:999999, 1))
-   #   otc_storage[[input$email]] <- list(code = code, timestamp = Sys.time())
-   #   showNotification(paste("DEBUG CODE:", code), type = "message", duration = 15) # For testing only
-   #   values$stage <- "verify"
-   # })
+   observeEvent(input$send_otc, {
+     req(input$email)
+     if (input$email == "") {
+       showNotification("Please select an email.", type = "error", duration = 5)
+       return()
+     }
+     values$selected_email <- input$email
+
+     # generate + store
+     code <- sprintf("%06d", sample(0:999999, 1))
+     otc_storage[[input$email]] <- list(code = code, timestamp = Sys.time())
+
+     # *** LOG DEV SEND ***
+     write_log(
+       log_Dashboard,
+       "OTC_DEV_SENT",
+       paste0("Mode=DEV, Email='", input$email, "', Code='", code, "'")
+     )
+
+     # debug popup only
+     showNotification(paste("DEBUG CODE:", code), type = "message", duration = 15)
+     values$stage <- "verify"
+   })
+
+   observeEvent(input$send_otc, {
+     req(input$email)
+     if (input$email == "") {
+       showNotification("Please select an email.", type = "error", duration = 5)
+       return()
+     }
+     values$selected_email <- input$email
+     code <- sprintf("%06d", sample(0:999999, 1))
+     otc_storage[[input$email]] <- list(code = code, timestamp = Sys.time())
+     showNotification(paste("DEBUG CODE:", code), type = "message", duration = 15) # For testing only
+     values$stage <- "verify"
+   })
   ####################################################################################
   ####################################################################################
   ####################################################################################
   ####################################################################################
   #PRODUCTION CODE. IT MUST BE UNCOMMENTED BEFORE USE INSIDE CTGENOMTECH03. IT MUST BE COMMENTED OUT WHEN USED IN DEV MODE
-  #—— PRODUCTION MODE: actually email the code —————————————————
-  observeEvent(input$send_otc, {
-    req(input$email)
-    values$selected_email <- input$email
-
-    if (!mailer_available()) {
-      showNotification("Mailer not available.", type = "error")
-      return()
-    }
-
-    # *** LOG PRODUCTION SEND ATTEMPT ***
-    write_log(
-      log_Dashboard,
-      "OTC_PROD_SEND_ATTEMPT",
-      paste0("Mode=PROD, sending to Email='", input$email, "'")
-    )
-
-    if (issue_one_time_code(values$selected_group, input$email)) {
-      showNotification("One-time code sent!", type = "message", duration = 10)
-
-      # *** LOG PRODUCTION SEND SUCCESS ***
-      write_log(
-        log_Dashboard,
-        "OTC_PROD_SENT",
-        paste0("Mode=PROD, Email='", input$email, "'")
-      )
-
-      values$stage <- "verify"
-    } else {
-      showNotification("Failed to send code. Contact gtdrylab@jax.org", type = "error", duration = 15)
-
-      # *** LOG PRODUCTION SEND FAILURE ***
-      write_log(
-        log_Dashboard,
-        "OTC_PROD_SEND_FAILED",
-        paste0("Mode=PROD, Email='", input$email, "'")
-      )
-    }
-  })
+  # —— PRODUCTION MODE: actually email the code —————————————————
+   # observeEvent(input$send_otc, {
+   #   req(input$email)
+   #   values$selected_email <- input$email
+   # 
+   #   if (!mailer_available()) {
+   #     showNotification("Mailer not available.", type = "error")
+   #     return()
+   #   }
+   # 
+   #   # *** LOG PRODUCTION SEND ATTEMPT ***
+   #   write_log(
+   #     log_Dashboard,
+   #     "OTC_PROD_SEND_ATTEMPT",
+   #     paste0("Mode=PROD, sending to Email='", input$email, "'")
+   #   )
+   # 
+   #   if (issue_one_time_code(values$selected_group, input$email)) {
+   #     showNotification("One-time code sent!", type = "message", duration = 10)
+   # 
+   #     # *** LOG PRODUCTION SEND SUCCESS ***
+   #     write_log(
+   #       log_Dashboard,
+   #       "OTC_PROD_SENT",
+   #       paste0("Mode=PROD, Email='", input$email, "'")
+   #     )
+   # 
+   #     values$stage <- "verify"
+   #   } else {
+   #     showNotification("Failed to send code. Contact gtdrylab@jax.org", type = "error", duration = 15)
+   # 
+   #     # *** LOG PRODUCTION SEND FAILURE ***
+   #     write_log(
+   #       log_Dashboard,
+   #       "OTC_PROD_SEND_FAILED",
+   #       paste0("Mode=PROD, Email='", input$email, "'")
+   #     )
+   #   }
+   # })
 
 
   ####################################################################################
@@ -548,7 +564,7 @@ server <- function(input, output, session) {
   # })
   observeEvent(input$continue_to_plot, {
     values$app_stage <- "plot"
-    dashboard_ready(TRUE) 
+    dashboard_ready(TRUE)   
   })
   
   ####################################################################################
@@ -571,7 +587,7 @@ server <- function(input, output, session) {
         "Module2",
         selectedGroup = selectedGroup,
         authenticated_group = authenticatedGroup,
-        dashboard_ready = dashboard_ready
+        dashboard_ready = dashboard_ready  
       )
       
     }

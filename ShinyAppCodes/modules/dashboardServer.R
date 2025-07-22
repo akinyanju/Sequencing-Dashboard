@@ -87,7 +87,7 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
                    tags$head(tags$style(HTML(".center-warning {height: 80vh; display: flex; justify-content: center; align-items: center;
                                     color: red; font-size: 20px; font-style: italic; text-align: center; padding: 0 20px;}")))
           ),
-          tabPanel(title = "SpeciesAlignment", value = "species_tab",
+          tabPanel(title = "Alignment", value = "species_tab",
                    actionButton(ns("plot_species"), "Show Plot"),
                    actionButton(ns("table_species"), "Show Table"),
                    downloadButton(ns("download_species"), "Download Table"),
@@ -95,14 +95,14 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
                    div(style = 'width: 100%; height: 600px; overflow-x: auto; overflow-y: auto;',
                        uiOutput(ns("species_view_ui")))
           ),
-          tabPanel("DownloadTable",
+          tabPanel("Download",
                    downloadButton(ns('download'), "Download below metrics",
                                   style = "color: #fff; background-color: green; border-color: Black;"),
                    br(), br(),
                    fluidRow(column(12, div(style = 'overflow-x: auto; overflow-y: auto; height:600px;',
                                            DT::dataTableOutput(ns('dataDownload')))))
           ),
-          tabPanel("GeneralSummary",
+          tabPanel("Summary",
                    shinycssloaders::withSpinner(
                      div(style = "max-height: 400px; overflow-y: auto;",
                          uiOutput(ns("summary_warning_ui")),
@@ -235,7 +235,7 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
           text <- if (!is.null(time)) {
             paste("🕒 Last fetched on", format(time, "%Y-%m-%d at %H:%M:%S"))
           } else {
-            "🕒 No new data refetched yet"
+            "🕒 No refresh yet"
           }
           tags$div(style = "font-size: 16px; font-weight: bold; color: #333;", text)
         })

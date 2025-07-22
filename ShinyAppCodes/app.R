@@ -18,6 +18,6 @@ source(file.path(base_path, "modules/dashboardServer.R"))
 source(file.path(base_path, "global/ui.R"))
 source(file.path(base_path, "global/server.R"))
 
-# Launch app
+# Launch appS
 shinyApp(ui, server)
 

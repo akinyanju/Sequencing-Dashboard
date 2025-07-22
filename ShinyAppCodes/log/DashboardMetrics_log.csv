@@ -13729,3 +13729,2533 @@ For more information, see https://duckdb.org/docs/dev/internal_errors"
 "2025-07-16","14:29:57","TOTAL_SAMPLES_OK","Final sample count total: 81854"
 "2025-07-16","14:30:23","APP_SESSION_ENDED","Session ended. Cleaning up memory."
 "2025-07-16","14:30:25","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-17","13:34:34","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-17","13:34:35","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-17","13:34:35","INIT","Loaded GTdashboardMetrics.duckdb with 14 apps."
+"2025-07-17","13:34:35","GROUPS_INIT","Found 61 valid groups"
+"2025-07-17","13:34:35","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-17","13:34:35","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-17","13:34:35","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-17","13:34:35","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-17","13:34:35","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-17","13:34:36","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-17","13:34:36","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-17","13:34:49","OTC_DEV_SENT","Mode=DEV, Email='raman.lawal@jax.org', Code='300816'"
+"2025-07-17","13:34:57","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →    Application Sample_Count
+1         rrbs           16
+2      atacseq         1705
+3     rnaseqR2         8230
+4      chipseq         1171
+5       rnaseq        34559
+6    pdxrnaseq           59
+7          wgs        15290
+8         chic           39
+9          hic           73
+10        wgbs          364
+11       basic        19511
+12      pdxwgs           24
+13         wes          308
+14         ctp            4"
+"2025-07-17","13:34:57","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          217"
+"2025-07-17","13:34:57","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          284"
+"2025-07-17","13:34:57","TOTAL_SAMPLES_OK","Final sample count total: 81854"
+"2025-07-17","13:35:11","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1         hic          109
+2         wgs           79
+3      rnaseq           98
+4         wes          116
+5    rnaseqR2           89
+6     atacseq           97"
+"2025-07-17","13:35:11","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          257"
+"2025-07-17","13:35:11","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT            4"
+"2025-07-17","13:35:11","TOTAL_SAMPLES_OK","Final sample count total: 849"
+"2025-07-17","13:35:11","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","13:35:11","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-17","14:00:35","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-17","14:00:38","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-17","14:00:38","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-17","14:00:38","INIT","Loaded GTdashboardMetrics.duckdb with 6 apps."
+"2025-07-17","14:00:38","GROUPS_INIT","Found 61 valid groups"
+"2025-07-17","14:00:38","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-17","14:00:38","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-17","14:00:38","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-17","14:00:38","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-17","14:00:38","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-17","14:00:38","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-17","14:00:38","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-17","14:00:41","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1         hic           95
+2     atacseq           98
+3    rnaseqR2          100
+4      rnaseq          109
+5         wgs          100
+6         wes           86"
+"2025-07-17","14:00:41","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          243"
+"2025-07-17","14:00:41","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT            4"
+"2025-07-17","14:00:41","TOTAL_SAMPLES_OK","Final sample count total: 835"
+"2025-07-17","14:01:19","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:01:19","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:01:19","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:01:28","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:01:28","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:01:28","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:01:31","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:01:31","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:01:31","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:01:33","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:01:33","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:01:33","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:01:43","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:01:43","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:01:43","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:01:48","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:01:48","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:01:48","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:02:00","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:02:00","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:02:00","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:04:32","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:04:32","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:04:33","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:04:37","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:04:37","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:04:37","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:04:39","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:04:39","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:04:39","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:04:41","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:04:41","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:04:41","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:04:43","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:04:43","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:04:43","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:22:06","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-17","14:22:06","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-17","14:22:06","INIT","Loaded GTdashboardMetrics.duckdb with 6 apps."
+"2025-07-17","14:22:06","GROUPS_INIT","Found 61 valid groups"
+"2025-07-17","14:22:06","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-17","14:22:06","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-17","14:22:06","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-17","14:22:06","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-17","14:22:06","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-17","14:22:06","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-17","14:22:06","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-17","14:22:07","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-17","14:22:11","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1      rnaseq          109
+2         wes           86
+3         hic           95
+4         wgs          100
+5     atacseq           98
+6    rnaseqR2          100"
+"2025-07-17","14:22:11","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          243"
+"2025-07-17","14:22:11","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT            4"
+"2025-07-17","14:22:11","TOTAL_SAMPLES_OK","Final sample count total: 835"
+"2025-07-17","14:22:13","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:22:13","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:22:13","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:48:17","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1     atacseq           92
+2    rnaseqR2          112
+3         wes           95
+4      rnaseq           88
+5         hic          104
+6         wgs           97"
+"2025-07-17","14:48:17","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          200"
+"2025-07-17","14:48:17","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          588"
+"2025-07-17","14:48:18","TOTAL_SAMPLES_OK","Final sample count total: 1376"
+"2025-07-17","14:48:18","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:48:18","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:48:18","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:48:22","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1         hic          104
+2         wes           95
+3      rnaseq           88
+4    rnaseqR2          112
+5     atacseq           92
+6         wgs           97"
+"2025-07-17","14:48:22","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          200"
+"2025-07-17","14:48:22","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          588"
+"2025-07-17","14:48:22","TOTAL_SAMPLES_OK","Final sample count total: 1376"
+"2025-07-17","14:48:22","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:48:22","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:48:22","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:48:27","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-17","14:48:29","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-17","14:48:29","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-17","14:48:30","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-17","14:48:30","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-17","14:48:30","INIT","Loaded GTdashboardMetrics.duckdb with 6 apps."
+"2025-07-17","14:48:30","GROUPS_INIT","Found 61 valid groups"
+"2025-07-17","14:48:30","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-17","14:48:30","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-17","14:48:30","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-17","14:48:30","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-17","14:48:30","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-17","14:48:30","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-17","14:48:30","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-17","14:48:34","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1         hic          104
+2     atacseq           92
+3    rnaseqR2          112
+4      rnaseq           88
+5         wgs           97
+6         wes           95"
+"2025-07-17","14:48:34","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          200"
+"2025-07-17","14:48:34","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          588"
+"2025-07-17","14:48:34","TOTAL_SAMPLES_OK","Final sample count total: 1376"
+"2025-07-17","14:48:37","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:48:37","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:48:37","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:54:16","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-17","14:54:16","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-17","14:54:17","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-17","14:54:17","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-17","14:54:17","INIT","Loaded GTdashboardMetrics.duckdb with 6 apps."
+"2025-07-17","14:54:17","GROUPS_INIT","Found 61 valid groups"
+"2025-07-17","14:54:17","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-17","14:54:17","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-17","14:54:17","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-17","14:54:17","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-17","14:54:17","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-17","14:54:18","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-17","14:54:18","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-17","14:54:21","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1         hic           87
+2     atacseq           96
+3    rnaseqR2          108
+4      rnaseq          104
+5         wes           98
+6         wgs           95"
+"2025-07-17","14:54:21","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          200"
+"2025-07-17","14:54:21","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          588"
+"2025-07-17","14:54:21","TOTAL_SAMPLES_OK","Final sample count total: 1376"
+"2025-07-17","14:54:24","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:54:24","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:54:24","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:54:28","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:54:28","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:54:28","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:54:31","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:54:31","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:54:31","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:54:33","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:54:33","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:54:33","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:54:34","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-17","14:54:35","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-17","14:54:35","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-17","14:55:57","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-17","14:55:57","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-18","09:28:39","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-18","09:28:39","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-18","09:28:39","INIT","Loaded GTdashboardMetrics.duckdb with 6 apps."
+"2025-07-18","09:28:39","GROUPS_INIT","Found 61 valid groups"
+"2025-07-18","09:28:39","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-18","09:28:39","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-18","09:28:39","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-18","09:28:39","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-18","09:28:39","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-18","09:28:40","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-18","09:28:40","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-18","09:28:45","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1     atacseq           96
+2    rnaseqR2          108
+3         hic           87
+4      rnaseq          104
+5         wes           98
+6         wgs           95"
+"2025-07-18","09:28:45","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          200"
+"2025-07-18","09:28:45","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          588"
+"2025-07-18","09:28:45","TOTAL_SAMPLES_OK","Final sample count total: 1376"
+"2025-07-18","09:28:48","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-18","09:28:48","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-18","09:28:48","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-18","09:55:58","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-18","09:55:59","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-18","09:56:08","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-18","09:56:09","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-18","09:56:09","INIT","Loaded GTdashboardMetrics.duckdb with 6 apps."
+"2025-07-18","09:56:09","GROUPS_INIT","Found 61 valid groups"
+"2025-07-18","09:56:09","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-18","09:56:09","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-18","09:56:09","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-18","09:56:09","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-18","09:56:09","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-18","09:56:09","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-18","09:56:09","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-18","09:56:13","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1    rnaseqR2          108
+2     atacseq           96
+3         wgs           95
+4         hic           87
+5         wes           98
+6      rnaseq          104"
+"2025-07-18","09:56:13","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          200"
+"2025-07-18","09:56:13","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          588"
+"2025-07-18","09:56:13","TOTAL_SAMPLES_OK","Final sample count total: 1376"
+"2025-07-18","09:56:18","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-18","09:56:18","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-18","09:56:18","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-18","09:57:24","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1      rnaseq          104
+2         hic           87
+3         wes           98
+4     atacseq           96
+5    rnaseqR2          108
+6         wgs           95"
+"2025-07-18","09:57:24","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          200"
+"2025-07-18","09:57:24","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          588"
+"2025-07-18","09:57:24","TOTAL_SAMPLES_OK","Final sample count total: 1376"
+"2025-07-18","09:57:24","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-18","09:57:24","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-18","09:57:24","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-18","09:57:28","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1         hic           87
+2      rnaseq          104
+3    rnaseqR2          108
+4     atacseq           96
+5         wes           98
+6         wgs           95"
+"2025-07-18","09:57:28","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          200"
+"2025-07-18","09:57:28","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          588"
+"2025-07-18","09:57:28","TOTAL_SAMPLES_OK","Final sample count total: 1376"
+"2025-07-18","09:57:28","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-18","09:57:29","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-18","09:57:29","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-18","09:58:23","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1      rnaseq          104
+2         wgs           95
+3         wes           98
+4         hic           87
+5    rnaseqR2          108
+6     atacseq           96"
+"2025-07-18","09:58:23","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          200"
+"2025-07-18","09:58:23","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          588"
+"2025-07-18","09:58:23","TOTAL_SAMPLES_OK","Final sample count total: 1376"
+"2025-07-18","09:58:23","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-18","09:58:23","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-18","09:58:23","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-18","09:58:42","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1         hic           87
+2      rnaseq          104
+3     atacseq           96
+4    rnaseqR2          108
+5         wgs           95
+6         wes           98"
+"2025-07-18","09:58:42","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          200"
+"2025-07-18","09:58:42","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          588"
+"2025-07-18","09:58:42","TOTAL_SAMPLES_OK","Final sample count total: 1376"
+"2025-07-18","09:58:42","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-18","09:58:42","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-18","09:58:42","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-18","09:58:51","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1     atacseq           96
+2    rnaseqR2          108
+3      rnaseq          104
+4         hic           87
+5         wgs           95
+6         wes           98"
+"2025-07-18","09:58:51","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          200"
+"2025-07-18","09:58:51","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          588"
+"2025-07-18","09:58:51","TOTAL_SAMPLES_OK","Final sample count total: 1376"
+"2025-07-18","09:58:51","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-18","09:58:51","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-18","09:58:51","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-18","09:59:38","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-18","09:59:41","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-18","09:59:42","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-18","09:59:42","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-18","09:59:42","INIT","Loaded GTdashboardMetrics.duckdb with 6 apps."
+"2025-07-18","09:59:42","GROUPS_INIT","Found 61 valid groups"
+"2025-07-18","09:59:42","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-18","09:59:42","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-18","09:59:42","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-18","09:59:42","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-18","09:59:42","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-18","09:59:42","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-18","09:59:42","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-18","09:59:46","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1      rnaseq          104
+2    rnaseqR2          108
+3     atacseq           96
+4         wes           98
+5         hic           87
+6         wgs           95"
+"2025-07-18","09:59:46","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          200"
+"2025-07-18","09:59:46","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          588"
+"2025-07-18","09:59:46","TOTAL_SAMPLES_OK","Final sample count total: 1376"
+"2025-07-18","09:59:48","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-18","09:59:48","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-18","09:59:48","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-18","10:00:27","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-18","10:00:28","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-18","10:02:14","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-18","10:02:14","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-18","10:02:14","INIT","Loaded GTdashboardMetrics.duckdb with 14 apps."
+"2025-07-18","10:02:14","GROUPS_INIT","Found 61 valid groups"
+"2025-07-18","10:02:14","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-18","10:02:14","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-18","10:02:14","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-18","10:02:14","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-18","10:02:14","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-18","10:02:14","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-18","10:02:14","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-18","10:02:28","OTC_DEV_SENT","Mode=DEV, Email='raman.lawal@jax.org', Code='441441'"
+"2025-07-18","10:02:37","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →    Application Sample_Count
+1     rnaseqR2         8230
+2      atacseq         1705
+3       rnaseq        34559
+4    pdxrnaseq           59
+5      chipseq         1171
+6       pdxwgs           24
+7          wes          308
+8          ctp            4
+9         chic           39
+10       basic        19511
+11        rrbs           16
+12         hic           73
+13        wgbs          364
+14         wgs        15290"
+"2025-07-18","10:02:37","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          217"
+"2025-07-18","10:02:37","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          284"
+"2025-07-18","10:02:37","TOTAL_SAMPLES_OK","Final sample count total: 81854"
+"2025-07-18","10:02:46","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-18","10:02:47","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-18","10:02:59","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-18","10:02:59","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-18","10:02:59","INIT","Loaded GTdashboardMetrics.duckdb with 6 apps."
+"2025-07-18","10:02:59","GROUPS_INIT","Found 61 valid groups"
+"2025-07-18","10:02:59","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-18","10:02:59","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-18","10:02:59","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-18","10:02:59","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-18","10:02:59","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-18","10:02:59","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-18","10:02:59","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-18","10:03:04","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1         hic           91
+2      rnaseq          105
+3     atacseq          107
+4    rnaseqR2           87
+5         wgs          103
+6         wes           95"
+"2025-07-18","10:03:04","SAMPLE_COUNT_SKIP","Skipping qc_pacbio_metrics - no Sample_Name or Sample_ID"
+"2025-07-18","10:03:04","SAMPLE_COUNT_SKIP","Skipping qc_ont_metrics - no Sample_Name or Sample_ID"
+"2025-07-18","10:03:04","TOTAL_SAMPLES_OK","Final sample count total: 588"
+"2025-07-18","10:03:07","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 7:       AND TRIM(Release_Date) != ''
+                  ^"
+"2025-07-18","10:03:07","DB_FILTER_YEAR_ERROR","Year filter query failed: rapi_prepare: Failed to prepare query 
+    SELECT *
+      FROM qc_illumina_metrics
+     WHERE Application = ?
+       AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')
+  
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 5: ...     AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = ...
+                                                                          ^"
+"2025-07-18","10:03:07","DROPDOWN_ERROR","Lab query failed: rapi_prepare: Failed to prepare query SELECT DISTINCT Investigator_Folder
+     FROM qc_illumina_metrics
+     WHERE Application = ?
+       
+      AND (
+        ProjStatus != 'Delivered'
+        OR Release_Date IS NULL
+        OR TRIM(Release_Date) = ''
+        OR LOWER(TRIM(Release_Date)) = 'null'
+      )
+     ORDER BY
+       CASE
+         WHEN Investigator_Folder IS NULL
+           OR TRIM(Investigator_Folder) = ''
+           OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
+         THEN 1 ELSE 0 END,
+       Investigator_Folder
+Error: Binder Error: No function matches the given name and argument types 'trim(DATE)'. You might need to add explicit type casts.
+	Candidate functions:
+	trim(VARCHAR) -> VARCHAR
+	trim(VARCHAR, VARCHAR) -> VARCHAR
+
+
+LINE 8:         OR TRIM(Release_Date) = ''
+                   ^"
+"2025-07-18","10:05:43","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1     chipseq            8
+2    rnaseqR2          165
+3     atacseq            4
+4      rnaseq          403
+5         hic            6
+6        wgbs           10
+7         wgs          284
+8       basic           44"
+"2025-07-18","10:05:43","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio            6"
+"2025-07-18","10:05:43","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT            9"
+"2025-07-18","10:05:43","TOTAL_SAMPLES_OK","Final sample count total: 939"
+"2025-07-18","10:05:43","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1       basic           44
+2         hic            6
+3        wgbs           10
+4    rnaseqR2          165
+5     atacseq            4
+6      rnaseq          403
+7     chipseq            8
+8         wgs          284"
+"2025-07-18","10:05:43","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio            6"
+"2025-07-18","10:05:43","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT            9"
+"2025-07-18","10:05:43","TOTAL_SAMPLES_OK","Final sample count total: 939"
+"2025-07-18","10:05:43","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-18","10:05:45","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-18","10:05:47","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-18","10:05:47","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-18","10:05:47","INIT","Loaded GTdashboardMetrics.duckdb with 8 apps."
+"2025-07-18","10:05:47","GROUPS_INIT","Found 61 valid groups"
+"2025-07-18","10:05:47","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-18","10:05:47","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-18","10:05:47","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-18","10:05:47","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-18","10:05:47","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-18","10:05:47","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-18","10:05:47","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-18","10:05:51","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1      rnaseq          403
+2    rnaseqR2          165
+3     atacseq            4
+4         wgs          284
+5       basic           44
+6     chipseq            8
+7        wgbs           10
+8         hic            6"
+"2025-07-18","10:05:51","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio            6"
+"2025-07-18","10:05:51","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT            9"
+"2025-07-18","10:05:51","TOTAL_SAMPLES_OK","Final sample count total: 939"
+"2025-07-18","10:05:51","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-21","14:06:24","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-21","14:06:29","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-21","14:06:29","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-21","14:06:29","INIT","Loaded GTdashboardMetrics.duckdb with 8 apps."
+"2025-07-21","14:06:29","GROUPS_INIT","Found 61 valid groups"
+"2025-07-21","14:06:29","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-21","14:06:29","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-21","14:06:29","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-21","14:06:29","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-21","14:06:29","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-21","14:06:29","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-21","14:06:29","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-21","14:06:33","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1     chipseq            8
+2      rnaseq          403
+3       basic           44
+4    rnaseqR2          165
+5     atacseq            4
+6         hic            6
+7        wgbs           10
+8         wgs          284"
+"2025-07-21","14:06:33","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio            6"
+"2025-07-21","14:06:33","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT            9"
+"2025-07-21","14:06:33","TOTAL_SAMPLES_OK","Final sample count total: 939"
+"2025-07-21","14:06:33","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-21","14:06:39","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-21","14:06:48","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-21","14:06:48","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-21","14:06:48","INIT","Loaded GTdashboardMetrics.duckdb with 14 apps."
+"2025-07-21","14:06:48","GROUPS_INIT","Found 61 valid groups"
+"2025-07-21","14:06:48","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-21","14:06:48","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-21","14:06:48","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-21","14:06:48","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-21","14:06:48","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-21","14:06:48","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-21","14:06:48","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-21","14:06:55","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →    Application Sample_Count
+1         wgbs          364
+2          hic           73
+3         chic           39
+4       rnaseq        34559
+5    pdxrnaseq           59
+6       pdxwgs           24
+7     rnaseqR2         8230
+8      atacseq         1705
+9      chipseq         1171
+10         wes          308
+11         ctp            4
+12         wgs        15290
+13        rrbs           16
+14       basic        19511"
+"2025-07-21","14:06:55","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          217"
+"2025-07-21","14:06:55","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT          284"
+"2025-07-21","14:06:55","TOTAL_SAMPLES_OK","Final sample count total: 81854"
+"2025-07-21","14:07:41","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1    rnaseqR2          191
+2     atacseq            2
+3         hic           30
+4        wgbs            4
+5      rnaseq          882
+6         wgs          325
+7       basic           17
+8     chipseq           45"
+"2025-07-21","14:07:41","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          217"
+"2025-07-21","14:07:41","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT           12"
+"2025-07-21","14:07:41","TOTAL_SAMPLES_OK","Final sample count total: 1725"
+"2025-07-21","14:11:45","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-21","14:11:45","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-21","14:11:47","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-21","14:11:47","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-21","14:11:47","INIT","Loaded GTdashboardMetrics.duckdb with 8 apps."
+"2025-07-21","14:11:47","GROUPS_INIT","Found 61 valid groups"
+"2025-07-21","14:11:47","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-21","14:11:47","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-21","14:11:47","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-21","14:11:47","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-21","14:11:47","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-21","14:11:47","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-21","14:11:47","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-21","14:11:51","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1        wgbs            4
+2         hic           30
+3     chipseq           45
+4    rnaseqR2          191
+5     atacseq            2
+6         wgs          325
+7      rnaseq          882
+8       basic           17"
+"2025-07-21","14:11:51","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          217"
+"2025-07-21","14:11:51","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT           12"
+"2025-07-21","14:11:51","TOTAL_SAMPLES_OK","Final sample count total: 1725"
+"2025-07-21","14:30:11","SAMPLE_COUNT_SKIP","Skipping qc_illumina_metrics - no Sample_Name or Sample_ID"
+"2025-07-21","14:30:11","SAMPLE_COUNT_SKIP","Skipping qc_pacbio_metrics - no Sample_Name or Sample_ID"
+"2025-07-21","14:30:11","SAMPLE_COUNT_SKIP","Skipping qc_ont_metrics - no Sample_Name or Sample_ID"
+"2025-07-21","14:30:11","TOTAL_SAMPLES_OK","Final sample count total: 0"
+"2025-07-21","14:30:11","GET_YEARS_ERROR","Year fetch failed: rapi_prepare: Failed to prepare query 
+    SELECT DISTINCT strftime('%Y', try_cast(Release_Date AS DATE)) AS yr
+    FROM qc_illumina_metrics
+    WHERE Application = ?
+      AND ProjStatus = 'Delivered'
+      AND Release_Date IS NOT NULL
+      AND TRIM(Release_Date) != ''
+      AND LOWER(TRIM(Release_Date)) != 'null'
+   ORDER BY yr DESC
+Error: Catalog Error: Table with name qc_illumina_metrics does not exist!
+Did you mean \"qc_illumina_metrics_pseudo\"?
+
+LINE 3:     FROM qc_illumina_metrics
+                 ^"
+"2025-07-21","14:30:11","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-21","14:30:17","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-21","14:31:20","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-21","14:31:20","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-21","14:31:20","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-21","14:53:54","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-21","14:53:55","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-21","14:53:55","INIT","Loaded GTdashboardMetrics.duckdb with 8 apps."
+"2025-07-21","14:53:55","GROUPS_INIT","Found 61 valid groups"
+"2025-07-21","14:53:55","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-21","14:53:55","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-21","14:53:55","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-21","14:53:55","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-21","14:53:55","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-21","14:53:55","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-21","14:53:55","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-21","14:53:58","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1       basic           17
+2         hic           30
+3        wgbs            4
+4         wgs          325
+5      rnaseq          882
+6    rnaseqR2          191
+7     atacseq            2
+8     chipseq           45"
+"2025-07-21","14:53:58","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          217"
+"2025-07-21","14:53:58","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT           12"
+"2025-07-21","14:53:58","TOTAL_SAMPLES_OK","Final sample count total: 1725"
+"2025-07-21","15:01:28","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1         wgs          325
+2        wgbs            4
+3         hic           30
+4    rnaseqR2          191
+5     atacseq            2
+6       basic           17
+7      rnaseq          882
+8     chipseq           45"
+"2025-07-21","15:01:28","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          217"
+"2025-07-21","15:01:28","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT           12"
+"2025-07-21","15:01:28","TOTAL_SAMPLES_OK","Final sample count total: 1725"
+"2025-07-21","15:10:56","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1     chipseq           45
+2      rnaseq          882
+3         wgs          325
+4    rnaseqR2          191
+5     atacseq            2
+6         hic           30
+7        wgbs            4
+8       basic           17"
+"2025-07-21","15:10:56","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          217"
+"2025-07-21","15:10:56","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT           12"
+"2025-07-21","15:10:56","TOTAL_SAMPLES_OK","Final sample count total: 1725"
+"2025-07-21","15:24:20","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1    rnaseqR2          191
+2     atacseq            2
+3      rnaseq          882
+4       basic           17
+5     chipseq           45
+6         hic           30
+7        wgbs            4
+8         wgs          325"
+"2025-07-21","15:24:20","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          218"
+"2025-07-21","15:24:20","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT           12"
+"2025-07-21","15:24:20","TOTAL_SAMPLES_OK","Final sample count total: 1726"
+"2025-07-21","15:53:59","APP_CACHE_CLEARED","Session cache expired and cleared."
+"2025-07-21","15:55:23","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1         wgs          325
+2       basic           17
+3        wgbs            4
+4         hic           30
+5     chipseq           45
+6      rnaseq          882
+7    rnaseqR2          191
+8     atacseq            2"
+"2025-07-21","15:55:23","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          218"
+"2025-07-21","15:55:23","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT           12"
+"2025-07-21","15:55:23","TOTAL_SAMPLES_OK","Final sample count total: 1726"
+"2025-07-21","16:07:05","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-21","16:07:06","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-21","16:07:07","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-21","16:07:08","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-21","16:07:08","INIT","Loaded GTdashboardMetrics.duckdb with 8 apps."
+"2025-07-21","16:07:08","GROUPS_INIT","Found 61 valid groups"
+"2025-07-21","16:07:08","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-21","16:07:08","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-21","16:07:08","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-21","16:07:08","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-21","16:07:08","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-21","16:07:08","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-21","16:07:08","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-21","16:07:11","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1    rnaseqR2          191
+2     atacseq            2
+3       basic           17
+4      rnaseq          882
+5     chipseq           45
+6         wgs          325
+7         hic           30
+8        wgbs            4"
+"2025-07-21","16:07:11","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          218"
+"2025-07-21","16:07:11","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT           12"
+"2025-07-21","16:07:11","TOTAL_SAMPLES_OK","Final sample count total: 1726"
+"2025-07-21","16:20:49","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-21","16:20:50","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-21","16:20:52","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Library/CloudStorage/Box-Box/GT-Analyses/Rshiny/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-21","16:20:52","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-21","16:20:52","INIT","Loaded GTdashboardMetrics.duckdb with 8 apps."
+"2025-07-21","16:20:52","GROUPS_INIT","Found 61 valid groups"
+"2025-07-21","16:20:52","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-21","16:20:52","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-21","16:20:52","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-21","16:20:52","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-21","16:20:52","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-21","16:20:52","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-21","16:20:52","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-21","16:20:56","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1    rnaseqR2          191
+2     atacseq            2
+3       basic           17
+4      rnaseq          882
+5         wgs          325
+6     chipseq           45
+7         hic           30
+8        wgbs            4"
+"2025-07-21","16:20:56","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          218"
+"2025-07-21","16:20:56","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT           12"
+"2025-07-21","16:20:56","TOTAL_SAMPLES_OK","Final sample count total: 1726"
+"2025-07-21","16:21:24","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-21","16:21:25","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-21","16:28:23","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Dropbox/My-script/AssociateCompSci/RshinyModules/SampleData/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-21","16:28:24","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-21","16:28:24","INIT","Loaded GTdashboardMetrics.duckdb with 8 apps."
+"2025-07-21","16:28:24","GROUPS_INIT","Found 61 valid groups"
+"2025-07-21","16:28:24","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-21","16:28:24","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-21","16:28:24","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-21","16:28:24","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-21","16:28:24","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-21","16:28:24","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-21","16:28:24","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-21","16:28:27","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1      rnaseq          882
+2         hic           30
+3        wgbs            4
+4       basic           17
+5     chipseq           45
+6    rnaseqR2          191
+7     atacseq            2
+8         wgs          325"
+"2025-07-21","16:28:27","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          218"
+"2025-07-21","16:28:27","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT           12"
+"2025-07-21","16:28:27","TOTAL_SAMPLES_OK","Final sample count total: 1726"
+"2025-07-21","16:28:32","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-21","16:28:33","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-22","10:39:23","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Dropbox/My-script/AssociateCompSci/RshinyModules/SampleData/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-22","10:39:24","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-22","10:39:24","INIT","Loaded GTdashboardMetrics.duckdb with 8 apps."
+"2025-07-22","10:39:24","GROUPS_INIT","Found 61 valid groups"
+"2025-07-22","10:39:24","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-22","10:39:24","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-22","10:39:24","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-22","10:39:24","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-22","10:39:24","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-22","10:39:24","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-22","10:39:24","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-22","10:39:30","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1       basic           17
+2     chipseq           45
+3      rnaseq          882
+4         wgs          325
+5    rnaseqR2          191
+6     atacseq            2
+7         hic           30
+8        wgbs            4"
+"2025-07-22","10:39:30","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          218"
+"2025-07-22","10:39:30","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT           12"
+"2025-07-22","10:39:30","TOTAL_SAMPLES_OK","Final sample count total: 1726"
+"2025-07-22","10:44:16","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-22","10:44:16","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-22","10:44:19","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Dropbox/My-script/AssociateCompSci/RshinyModules/SampleData/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-22","10:44:19","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-22","10:44:19","INIT","Loaded GTdashboardMetrics.duckdb with 8 apps."
+"2025-07-22","10:44:19","GROUPS_INIT","Found 61 valid groups"
+"2025-07-22","10:44:19","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-22","10:44:19","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-22","10:44:19","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-22","10:44:19","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-22","10:44:19","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-22","10:44:19","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-22","10:44:19","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-22","10:44:23","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1       basic           17
+2      rnaseq          882
+3    rnaseqR2          191
+4     atacseq            2
+5         wgs          325
+6         hic           30
+7        wgbs            4
+8     chipseq           45"
+"2025-07-22","10:44:23","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          218"
+"2025-07-22","10:44:23","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT           12"
+"2025-07-22","10:44:23","TOTAL_SAMPLES_OK","Final sample count total: 1726"
+"2025-07-22","10:48:13","OTC_DEV_SENT","Mode=DEV, Email='raman.lawal@jax.org', Code='449105'"
+"2025-07-22","10:48:21","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1     chipseq           45
+2         hic           30
+3        wgbs            4
+4         wgs          325
+5       basic           17
+6    rnaseqR2          191
+7     atacseq            2
+8      rnaseq          882"
+"2025-07-22","10:48:21","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          218"
+"2025-07-22","10:48:21","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT           12"
+"2025-07-22","10:48:21","TOTAL_SAMPLES_OK","Final sample count total: 1726"
+"2025-07-22","10:53:01","OTC_DEV_SENT","Mode=DEV, Email='raman.lawal@jax.org', Code='828686'"
+"2025-07-22","12:12:58","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Dropbox/My-script/AssociateCompSci/Github/ShinyAppCodes/SampleData/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-22","12:12:58","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-22","12:12:58","INIT","Loaded GTdashboardMetrics.duckdb with 8 apps."
+"2025-07-22","12:12:58","GROUPS_INIT","Found 61 valid groups"
+"2025-07-22","12:12:58","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH, GenomeTechnologies_Group_CT"
+"2025-07-22","12:12:58","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-22","12:12:58","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=2, after=3"
+"2025-07-22","12:12:58","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_CT': users before=0, after=1"
+"2025-07-22","12:12:58","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-22","12:12:58","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-22","12:12:58","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-22","12:13:14","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-22","12:20:28","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Dropbox/My-script/AssociateCompSci/Github/ShinyAppCodes/SampleData/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-22","12:20:28","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-22","12:20:28","INIT","Loaded GTdashboardMetrics.duckdb with 8 apps."
+"2025-07-22","12:20:28","GROUPS_INIT","Found 3 valid groups"
+"2025-07-22","12:20:28","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH"
+"2025-07-22","12:20:28","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-22","12:20:28","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=1, after=1"
+"2025-07-22","12:20:28","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-22","12:20:28","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-22","12:20:28","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-22","12:33:47","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-22","13:02:38","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Dropbox/My-script/AssociateCompSci/Github/ShinyAppCodes/SampleData/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-22","13:02:38","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-22","13:02:38","INIT","Loaded GTdashboardMetrics.duckdb with 8 apps."
+"2025-07-22","13:02:38","GROUPS_INIT","Found 3 valid groups"
+"2025-07-22","13:02:38","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH"
+"2025-07-22","13:02:38","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-22","13:02:38","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=1, after=1"
+"2025-07-22","13:02:38","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-22","13:02:38","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-22","13:02:38","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-22","13:02:52","DB_DISCONNECT","Shutting down primary DuckDB connection"
+"2025-07-22","13:06:05","DB_CONNECT_START","Connecting to DuckDB at /Users/lawalr/Dropbox/My-script/AssociateCompSci/Github/ShinyAppCodes/SampleData/duckDB/GTdashboardMetrics.duckdb"
+"2025-07-22","13:06:05","DB_CONNECT_OK","Primary DuckDB connection established"
+"2025-07-22","13:06:05","INIT","Loaded GTdashboardMetrics.duckdb with 8 apps."
+"2025-07-22","13:06:05","GROUPS_INIT","Found 2 valid groups"
+"2025-07-22","13:06:05","GT_GROUPS_FOUND","GenomeTechnologies groups: GenomeTechnologies_Group_BH"
+"2025-07-22","13:06:05","GT_EMAILS_AGGREGATED","Aggregated 1 unique GT emails"
+"2025-07-22","13:06:05","GT_GROUP_EXPANDED","Group 'GenomeTechnologies_Group_BH': users before=1, after=1"
+"2025-07-22","13:06:05","OTC_INIT","Initialized OTC storage; codes expire in 300 seconds"
+"2025-07-22","13:06:05","[LOG READ]","Reading log: SequencingMetrics_log.csv"
+"2025-07-22","13:06:05","[LOG READ]","Reading log: DashboardMetrics_log.csv"
+"2025-07-22","13:06:35","OTC_DEV_SENT","Mode=DEV, Email='raman.lawal@jax.org', Code='987217'"
+"2025-07-22","13:06:41","SAMPLE_COUNT_DEBUG","From qc_illumina_metrics →   Application Sample_Count
+1         hic           30
+2        wgbs            4
+3      rnaseq          882
+4       basic           17
+5         wgs          325
+6    rnaseqR2          191
+7     atacseq            2
+8     chipseq           45"
+"2025-07-22","13:06:41","SAMPLE_COUNT_DEBUG","From qc_pacbio_metrics →   Application Sample_Count
+1      PacBio          218"
+"2025-07-22","13:06:41","SAMPLE_COUNT_DEBUG","From qc_ont_metrics →   Application Sample_Count
+1         ONT           12"
+"2025-07-22","13:06:41","TOTAL_SAMPLES_OK","Final sample count total: 1726"
+"2025-07-22","13:31:59","APP_SESSION_ENDED","Session ended. Cleaning up memory."
+"2025-07-22","13:32:00","DB_DISCONNECT","Shutting down primary DuckDB connection"

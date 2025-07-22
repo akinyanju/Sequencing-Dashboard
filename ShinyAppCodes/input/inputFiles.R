@@ -84,6 +84,33 @@ onStop(function() {
   write_log(log_Dashboard, "DB_DISCONNECT", "Shutting down primary DuckDB connection")
   DBI::dbDisconnect(con, shutdown = TRUE)
 })
+# ─────────────────────────────────────────────────────────────
+# Helper: Auto crawl new labs and update the json group information. Function is called in server.R module
+# ─────────────────────────────────────────────────────────────
+sync_json_with_duckdb_labs <- function(con, json_path) {
+  users_data <- jsonlite::fromJSON(readLines(json_path, warn = FALSE))
+  labs_from_db <- tryCatch({
+    DBI::dbGetQuery(con, "
+      SELECT DISTINCT Investigator_Folder
+      FROM unified_qc_view
+      WHERE Investigator_Folder IS NOT NULL
+    ")$Investigator_Folder
+  }, error = function(e) {
+    write_log(log_Dashboard, "json_path", "⚠️ Failed to query labs from unified_qc_view")
+    character(0)
+  })
+  
+  labs_from_db <- unique(trimws(labs_from_db))
+  
+  new_labs <- setdiff(labs_from_db, names(users_data))
+  if (length(new_labs) > 0) {
+    for (lab in new_labs) {
+      users_data[[lab]] <- character(0)  # or insert a default email if needed
+    }
+    jsonlite::write_json(users_data, json_path, pretty = TRUE, auto_unbox = TRUE)
+  } else {
+  }
+}
 
 # ─────────────────────────────────────────────────────────────
 # Helper: Fetch distinct values for any field with arbitrary filters

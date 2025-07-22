@@ -1,9 +1,9 @@
 # ------------------------------------------------------------
 # Logging setup. If some package do not auto install, which i have encountered, then manually launch R using sudo e.g. sudo R then install the package.
 # ------------------------------------------------------------
-#base_path <- file.path("/Users/lawalr/Dropbox/My-script/AssociateCompSci/RshinyModules")
+base_path <- file.path("/Fake/Path//ShinyAppCodes")
 
-base_path <-"/srv/shiny-server/"
+#base_path <-"/srv/shiny-server/"
 log_library    <- file.path(base_path, "log", "missing_libraries_log.csv")
 
 # Ensure the log directory exists
