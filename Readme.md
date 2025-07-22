@@ -19,6 +19,30 @@ The codebase supporting this system is primarily written in Bash and R, with som
   `/srv/shiny-server/`
 
 ---
+## Local Installation (via Git)
+1. Recommended: Install RStudio
+  Download and install [RStudio](https://posit.co/download/rstudio-desktop/) for easier management of R projects.
+
+2. Clone the Repository
+git clone <repository_link>
+
+3. Configure File Paths
+Open configPaths.R and update these two paths:
+a. base_path     <- file.path("/Fake/Path/ShinyAppCodes")
+b. dir_InputFile <- file.path("/Fake/Path/ShinyAppCodes/SampleData")
+4. Open Library/libraries.R and update:
+a. base_path <- file.path("/Fake/Path/ShinyAppCodes")
+5.  Manually open ~/ShinyAppCodes/.usersProfile.json and add your email under the Admin group or any other appropriate group to gain dashboard access.
+5.  Adjust for Local Development (Optional)
+If your MacBook or local machine cannot send one-time passcodes (due to mailx issues):
+---->In global/server.R:
+**Enable DEV MODE:**
+`Search for:`
+"DEV MODE: show debug code only". Uncomment the corresponding block.
+Then Disable Production Mode: To do that,
+`Search for:`
+"PRODUCTION MODE: actually email the code" Comment out that block.
+**In production, reverse this setup by commenting out DEV MODE and Uncomment PRODUCTION MODE.**
 
 ## Metrics Locations
 
