@@ -1482,8 +1482,11 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         
         
         # ---- Data table preview ----
+        # output$dataDownload <- DT::renderDataTable({
+        #   downloadfunc()
+        # })
         output$dataDownload <- DT::renderDataTable({
-          downloadfunc()
+          DT::datatable(downloadfunc(), options = list(scrollX = TRUE))
         })
         
         # ---- Download handler ----
@@ -1590,11 +1593,14 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         
         
         # -------- Render the species table as wide, one‐row‐per‐sample --------
+        # output$species_table <- DT::renderDataTable({
+        #   req(selected_species_view() == "table")
+        #   species_download_data()
+        # })
         output$species_table <- DT::renderDataTable({
           req(selected_species_view() == "table")
-          species_download_data()
+          DT::datatable(species_download_data(), options = list(scrollX = TRUE))
         })
-        
         # -------- Download handler uses the same wide dataset --------
         output$download_species <- downloadHandler(
           filename = function() {
