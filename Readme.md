@@ -23,7 +23,8 @@ The codebase supporting this system is primarily written in Bash and R, with som
 1. Recommended: 
   Download and install [RStudio](https://posit.co/download/rstudio-desktop/) for easier management of R projects.
 
-2. Clone the Repository: -
+2. Clone only the Sequencing-Dashboard: -
+
  "git clone https://github.com/akinyanju/Sequencing-Dashboard.git"
 
 3. Configure File Paths: - 
@@ -121,6 +122,7 @@ This flowchart shows how the main scripts and modules interact in the Genome Tec
 
   * Loads required R libraries.
   * Attempts auto-installation if packages are missing (may fail on restricted systems). If that happens, manual installation will be required. First review the /log/missing_libraries_log.csv.
+  * You must edit the log path in this file, else there will be an error if that path do not exist.
 
 * **configPaths.R**
 
