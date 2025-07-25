@@ -25,12 +25,12 @@ The codebase supporting this system is primarily written in Bash and R, with som
   Download and install [RStudio](https://posit.co/download/rstudio-desktop/) for easier management of R projects.
 ```
 2. Clone only the Sequencing-Dashboard: -
- <!-- ##
+
  ```bash
 "git clone https://github.com/akinyanju/Sequencing-Dashboard.git" 
 ```
--->
- 
+
+  <!-- ##
 ```bash
 git clone --filter=blob:none --no-checkout https://github.com/TheJacksonLaboratory/GTDryLabOps.git
 cd GTDryLabOps
@@ -38,7 +38,7 @@ git sparse-checkout init --cone
 git sparse-checkout set Sequencing-Dashboard
 git checkout main
 ```
-
+-->
 
 3. Configure File Paths: - 
 ```bash
