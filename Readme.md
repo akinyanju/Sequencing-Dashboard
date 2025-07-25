@@ -25,10 +25,12 @@ The codebase supporting this system is primarily written in Bash and R, with som
   Download and install [RStudio](https://posit.co/download/rstudio-desktop/) for easier management of R projects.
 ```
 2. Clone only the Sequencing-Dashboard: -
-```bash
+ <!-- ##
+ ```bash
 "git clone https://github.com/akinyanju/Sequencing-Dashboard.git" 
 ```
- <!-- ## 
+-->
+ 
 ```bash
 git clone --filter=blob:none --no-checkout https://github.com/TheJacksonLaboratory/GTDryLabOps.git
 cd GTDryLabOps
@@ -36,7 +38,7 @@ git sparse-checkout init --cone
 git sparse-checkout set Sequencing-Dashboard
 git checkout main
 ```
--->
+
 
 3. Configure File Paths: - 
 ```bash
@@ -114,6 +116,7 @@ This flowchart shows how the main scripts and modules interact in the Genome Tec
 * **update\_projstatus.sh**
 
   * Script used to update the project status (Delivered or Undelivered) in the DuckDB database based on processing or delivery results. do **update_projstatus.sh --help** for options
+  
 
 ---
 
@@ -263,6 +266,23 @@ Admins should always check the relevant log files before jumping into troublesho
 * For package/load errors: check `missing_libraries_log.csv`
 
 ### Common Questions
+
+**What should I do if project is released with wrong pipeline and I need to run different pipeline?**
+*Run the new pipeline and then follow the below to remove metrics from wrong pipeline in the dashboard.*
+```bash
+
+cd /gt/research_development/qifa/elion/software/qifa-ops/0.1.0/dashboardCodes
+./update_projstatus.sh --help
+-> The below command will now delete the data with the wrong application <-
+./update_projstatus.sh --project_run_type [GT25-LabA-run1] --application [app to delete e.g. wgs] --delete --table qc_illumina_metrics
+-> You must remove the QC path of the wrong pipeline so that QC for the new pipeline is recollected <-
+cd /gt/data/seqdma/GTwebMetricsTables/.whitelist_QCdir
+-> While in that directory, search for the keyword either the project e.g. GTBH25-HowellG-64. If more result is seeing, then select the one with correct runID <-
+grep -r  "GTBH25-HowellG-64" . 
+-> open the file e.g. rnaseq.qcdir_file_update_list.txt that capture the path and specify the path to be removed. Note rnaseq is the wrong pipeline  <-
+sed -i '|/gt/data/seqdma/qifa/250722_LH00341_0190_A23325FLT3/GTBH25-HowellG-64_mm1|d' rnaseq.qcdir_file_update_list.txt
+grep -r  "GTBH25-HowellG-64" . 
+```
 
 **Why do I see “No Data” on the dashboard?**
 
