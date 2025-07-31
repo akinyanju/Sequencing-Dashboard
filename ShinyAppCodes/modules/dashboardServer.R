@@ -83,9 +83,35 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         # Start building tab list
         tabs <- list(
           tabPanel("Plot",
-                   uiOutput(ns("plot_ui")),
-                   tags$head(tags$style(HTML(".center-warning {height: 80vh; display: flex; justify-content: center; align-items: center;
-                                    color: red; font-size: 20px; font-style: italic; text-align: center; padding: 0 20px;}")))
+                   actionButton(ns("show_plot"), "View Plot",
+                                style = "background-color: tomato; color: white; font-weight: bold;"),
+                   actionButton(ns("show_multiqc"), "View MultiQC",
+                                style = "background-color: tomato; color: white; font-weight: bold;"),
+                   br(), br(),
+                   tags$head(tags$style(HTML("
+                    .scrollable-plot-container {
+                    overflow-x: auto !important;
+                    overflow-y: auto !important;
+                    height: 550px;
+                    border: 1px solid #ccc;
+                    padding: 10px;
+                    background-color: #fff;
+                    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+                  }
+                    .center-warning {
+                    height: 80vh;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    color: red;
+                    font-size: 20px;
+                    font-style: italic;
+                    text-align: center;
+                    padding: 0 20px;
+                  }"))),
+                   div(class = "scrollable-plot-container",
+                       uiOutput(ns("plot_multiqc_switch_ui"))
+                   )
           ),
           tabPanel(title = "Alignment", value = "species_tab",
                    actionButton(ns("plot_species"), "Show Plot"),
@@ -125,22 +151,6 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
                                                )
           )
         }
-        
-        # Conditionally add SpeciesAlignment tab for GenomeTechnologies
-        
-        # if (is_genome_tech()) {
-        #   tabs[[length(tabs) + 1]] <- tabPanel(title = "SpeciesAlignment", value = "species_tab",
-        #                                        actionButton(ns("plot_species"), "Show Plot"),
-        #                                        actionButton(ns("table_species"), "Show Table"),
-        #                                        downloadButton(ns("download_species"), "Download Table"),
-        #                                        br(), br(),
-        #                                        div(style = 'width: 100%; height: 600px; overflow-x: auto; overflow-y: auto;',
-        #                                            uiOutput(ns("species_view_ui")))
-        #   )
-        # }
-        # Show SpeciesAlignment for all non-admins
-        
-        
         # Render final tabset
         div(
           id = ns("normal_tabs"),
@@ -233,7 +243,7 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         output$last_refresh_text <- renderUI({
           time <- last_refresh_time()
           text <- if (!is.null(time)) {
-            paste("🕒 Last fetched on", format(time, "%Y-%m-%d at %H:%M:%S"))
+            paste("🕒 Last fetched:", format(time, "%Y-%m-%d at %H:%M:%S"))
           } else {
             "🕒 No refresh yet"
           }
@@ -552,22 +562,6 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
           }
           
         })
-        
-        ###########################################################P#####################################
-        #-------- Preserve Lab Selection on Refresh Block--------
-        #When "Refresh App Data" is clicked, it re-applies the selected Lab (var1) after a short delay to prevent reset.
-        
-        # observeEvent(input$refresh_app_data, {
-        #   # Capture the input$var1 safely
-        #   selected_lab <- isolate(input$var1)
-        #   
-        #   # Delay to ensure updatePickerInput finishes
-        #   later::later(function() {
-        #     if (!is.null(session) && !is.null(selected_lab)) {
-        #       session$sendInputMessage("var1", list(value = selected_lab))
-        #     }
-        #   }, delay = 0.2)
-        # })
         
         ###########################################################P#####################################
         #-------- Update Project ID on Lab Selection Block --------
@@ -1266,7 +1260,6 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
           }
           
           all_matches <- do.call(rbind, match_results)
-          
           first_row <- head(all_matches, 1)
           
           app_found  <- first_row$Application[[1]]
@@ -1308,8 +1301,136 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         })
         
         
+        ###########################################################P#####################################
+        #This block react to Plot and MultiQC buttons so that it show their respecitve content
+        ###########################################################P#####################################
+        # Reactive value to store which button was last clicked
+        selected_plot_tab <- reactiveVal("plot")
         
+        # Update selected tab when buttons are clicked
+        observeEvent(input$show_plot, {
+          selected_plot_tab("plot")
+        })
         
+        observeEvent(input$show_multiqc, {
+          selected_plot_tab("multiqc")
+        })
+        
+        # Render the appropriate UI based on the button clicked
+        output$plot_multiqc_switch_ui <- renderUI({
+          if (selected_plot_tab() == "plot") {
+            uiOutput(ns("plot_ui"))
+          } else {
+            uiOutput(ns("multiqc_ui"))
+          }
+        })
+        ###########################################################P#####################################
+        #Block that handles the content shown in multiQC tab
+        ###########################################################P#####################################
+        
+        output$multiqc_ui <- renderUI({
+          selected <- input$var3
+          
+          if (is.null(selected) || length(selected) == 0) {
+            return(div(
+              style = "background-color: #f8d7da; border-left: 5px solid #f44336; padding: 15px; border-radius: 6px; font-weight: bold; font-size: 20px; color: #a94442;",
+              "Select item under project run to show MultiQC."
+            ))
+          }
+          
+          if (length(selected) > 1) {
+            warning_msg <- div(
+              style = "background-color: #fff3cd; border-left: 5px solid #ffcc00; padding: 10px; margin-bottom: 10px; border-radius: 6px; font-size: 20px; color: #856404; font-weight: bold;",
+              "⚠️ Multiple selections detected. Showing report for the first selection only."
+            )
+            selected <- selected[1]
+          } else {
+            warning_msg <- NULL
+          }
+          
+          # Handle compressed .gz file
+          report_gz <- paste0(selected, "_report.html.gz")
+          file_gz_path <- file.path(MULTIQC_DIR, report_gz)
+          
+          # Define expected uncompressed path (for iframe serving)
+          report_html <- paste0(selected, "_report.html")
+          file_html_path <- file.path(MULTIQC_DIR, report_html)
+          # If uncompressed version doesn't exist but .gz does, decompress
+          
+          if (!file.exists(file_html_path) && file.exists(file_gz_path)) {
+            tryCatch({
+              tmp_path <- paste0(file_html_path, ".tmp")
+              
+              if (file.exists(tmp_path)) file.remove(tmp_path)
+              if (file.exists(file_html_path)) file.remove(file_html_path)  # just in case
+              
+              # Manually decompress using gzfile() + writeBin() with safe variable names
+              gz_in <- gzfile(file_gz_path, "rb")
+              html_out <- file(tmp_path, "wb")
+              writeBin(readBin(gz_in, what = "raw", n = 1e8), html_out)  # n = 100 MB buffer
+              close(gz_in)
+              close(html_out)
+              
+              file.rename(tmp_path, file_html_path)
+            }, error = function(e) {
+              return(div(
+                style = "background-color: #f8d7da; border-left: 5px solid #f44336; padding: 15px; border-radius: 6px; font-weight: bold; font-size: 20px; color: #a94442;",
+                paste("Error unzipping MultiQC report:", e$message)
+              ))
+            })
+          }
+          
+          # If still not found
+          if (!file.exists(file_html_path)) {
+            return(div(
+              style = "background-color: #f8d7da; border-left: 5px solid #f44336; padding: 15px; border-radius: 6px; font-weight: bold; font-size: 20px; color: #a94442;",
+              paste("MultiQC report not available for:", selected)
+            ))
+          }
+          
+          # File is served via /multiqc_reports path
+          file_url <- sprintf("/multiqc_reports/%s", report_html)
+          
+          tagList(
+            warning_msg,
+            div(
+              style = "margin-bottom: 10px; background-color: #e3f2fd; border-left: 5px solid #2196f3; padding: 10px; font-size: 20px; border-radius: 6px;",
+              tags$p(style = "font-weight: bold; margin: 0; color: #0d47a1;",
+                     paste("Currently viewing MultiQC for:", selected))
+            ),
+            div(
+              style = "width: 100%; height: 75vh; overflow: hidden; padding: 0; margin: 0;",
+              tags$div(
+                style = "height: 100%; overflow-y: auto; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
+                tags$iframe(
+                  src = file_url,
+                  style = "width: 100%; height: 100%; border: none;",
+                  sandbox = "allow-scripts allow-same-origin"
+                )
+              )
+            )
+          )
+        })
+        
+        ########################
+        #Periodic Cleanup of uncompressed html multiqc files for space managment
+        ########################
+        clean_old_multiqc_files <- function(path = MULTIQC_DIR, age_minutes = 30) {
+          files <- list.files(path, pattern = "_report\\.html$", full.names = TRUE)
+          for (f in files) {
+            if (difftime(Sys.time(), file.info(f)$mtime, units = "mins") > age_minutes) {
+              file.remove(f)
+            }
+          }
+        }
+
+        # Run cleanup every hour
+        later::later(function() {
+          clean_old_multiqc_files()
+          later::later(clean_old_multiqc_files, delay = 3600)
+        }, delay = 10)
+
+
         ###########################################################P#####################################
         ###########################################################P#####################################
         ###########################################################P#####################################

@@ -31,7 +31,7 @@ required_packages <- c(
   "scales", "reshape2", "psych", "forcats", "jsonlite", "ggforce", "plotly",
   "keyring", "shinycssloaders", "tidyr", "glue", "cachem", "tools", "stringr",
   "future", "promises", "tictoc", "pryr", "fs", "future.apply", "duckdb", "DBI",
-  "purrr", "magrittr","later"
+  "purrr", "magrittr","later", "R.utils"
 )
 
 # -------------Ensure a user‐writable library exists-------------

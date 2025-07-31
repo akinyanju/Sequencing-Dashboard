@@ -9,8 +9,23 @@ ui <- function(request) {
               tags$style(HTML(".shiny-notification {position: fixed; top: 100px; right: 20px; left: auto; bottom: auto; z-index: 9999;font-size: 20px;
                       background-color: black; color: white; border-left: 5px solid #FF8C00; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);}")),
               tags$style(HTML(".info-icon {color: #007bff; font-size: 1.1em;margin-left: 5px;cursor: help;}.info-icon:hover {color: #0056b3;}")), #controls the admin icon
-              tags$style(HTML("#admin_tab {background: url('mechanical_background.gif') no-repeat center center fixed;background-size: cover;color: white;} "))
-    ),
+              tags$style(HTML("#admin_tab {background: url('mechanical_background.gif') no-repeat center center fixed;background-size: cover;color: white;} ")),
+              tags$style(HTML(".no-scroll {overflow: hidden !important; position: fixed !important; width: 100% !important;}")),#handles multiqc tab
+              tags$script(HTML("document.addEventListener('DOMContentLoaded', function() {const iframeObserver = new MutationObserver(() => {
+                const iframe = document.querySelector('iframe'); 
+                if (iframe && !iframe.hasListenerAttached) { 
+                  iframe.hasListenerAttached = true;
+                  iframe.addEventListener('mouseenter', function() {
+                    document.documentElement.classList.add('no-scroll');
+                    document.body.classList.add('no-scroll');});
+                  iframe.addEventListener('mouseleave', function() {
+                    document.documentElement.classList.remove('no-scroll');
+                    document.body.classList.remove('no-scroll');});}});
+                  iframeObserver.observe(document.body, {
+                    childList: true,
+                    subtree: true});
+                  });"))#handles multiqc tab
+              ),
     tabsetPanel(id = "main_tab",
                 tabPanel("Sequence Data Generated",
                          # Scroll only vertically, hide horizontal scrolling

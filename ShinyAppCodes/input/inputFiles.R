@@ -38,6 +38,11 @@ log_SeqMet <- file.path(base_path, "log/SequencingMetrics_log.csv")
 log_file <- file.path(base_path, "log/access_log.csv")
 log_Wiki <- file.path(base_path, "log/DashboardMetrics_log.csv")
 
+# -------- multiQC hmtl path --------
+
+MULTIQC_DIR <- file.path(dir_InputFile, "multiqc_reports")
+addResourcePath("multiqc_reports", MULTIQC_DIR)
+
 # -------- Log Function --------
 write_log <- function(log_path, event, details) {
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%OS")
