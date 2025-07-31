@@ -18,8 +18,8 @@ module load node/8.6.0
 module load duckdb/1.2.2
 # ─────────────────────────────────────────────────────────────
 # Constants and Configuration
-#Email="Raman.Lawal@jax.org, Harianto.Tjong@jax.org, Gabriel.Rech@jax.org, dave.john.harrison@jax.org"
-Email="raman.lawal@jax.org"
+Email="Raman.Lawal@jax.org, Harianto.Tjong@jax.org, Gabriel.Rech@jax.org, dave.john.harrison@jax.org"
+#Email="raman.lawal@jax.org"
 OUT="/gt/data/seqdma/GTwebMetricsTables"
 QCdir_illumina_nonarchive="/gt/data/seqdma/qifa"
 QCdir_pacbio_nonarchive="/gt/data/seqdma/qifa-pb"
@@ -118,7 +118,7 @@ check_list_temp_script() {
 #---------------------------------------------------
 set_global_paths() {
   #if any of the directories not avaiable, create it
-  for dir in "$OUT/.last_import_push" "$OUT/.slurmlog" "$OUT/.logs" \
+  for dir in "$OUT/.last_import_push/multiqc_reports" "$OUT/.slurmlog" "$OUT/.logs" \
     "$OUT/.whitelist_QCdir/archive_scan_tracker" "$OUT/.whitelist_QCdir/non_archive_scan_tracker"; do
       [[ ! -d "$dir" ]] && mkdir -p "$dir"
   done
@@ -142,11 +142,12 @@ set_global_paths() {
   duckDB_PATH="$OUT/GTdashboardMetrics.duckdb"
   duckDB_lockfile="$OUT/.duckdb.lock"
   duckDB_lastpush="$last_import_push_dir/GTdashboardMetrics.lastpush.duckdb"
+  multiqc_lastpush="$last_import_push_dir/multiqc_reports"
   duckDB_logfile="$OUT/.logs/duckdb.import.log"
   duckDB_duplicatefile="$OUT/.logs/duckdb.deduplicate.metrics.log"
   duckDB_errorlog="$OUT/.logs/duckdb.error.log"
   duckDB_missing_metrics="$OUT/.logs/duckdb.missing_metrics.log"
-  push_server="ctgenometech03:/srv/shiny-server/.InputDatabase/duckDB"
+  push_server="ctgenometech03:/srv/shiny-server/.InputDatabase"
 }
 
 #------------------------------------------------------------------
@@ -675,6 +676,22 @@ QCdir_updatelist() {
     return 1  # Signal to database function that this project should be skipped. continue to next is called in databae function
   fi
   return 0
+}
+#------------------------------------------------------------
+# Function: multiQC_gather
+# Purpose : collect multiQC html, if found, and compress them to dedicated output
+#------------------------------------------------------------
+
+multiQC_gather() {
+    if [[ -d "$ProjDir/multiQC" && -f "$ProjDir/multiQC/multiqc_report.html" ]]; then
+        mkdir -p "$OUT/multiqc_reports"
+        GZFILE="$OUT/multiqc_reports/${projectFinal}_report.html.gz"
+
+        if [[ -f "$GZFILE" ]]; then
+            return 0
+        fi
+        gzip -c "$ProjDir/multiQC/multiqc_report.html" > "$GZFILE"
+    fi
 }
 
 #------------------------------------------------------------
@@ -1478,6 +1495,9 @@ EOF
   else
     log_warn "[$Application] No metrics data to import → $projectId"
   fi
+
+  #If import works fine, then gather the multiQC
+  multiQC_gather
 }
 
 #------------------------------------------------------------------
@@ -1838,7 +1858,6 @@ extract_and_process_run_metrics_illumina() {
     log_info "[$Application] will recollect $ProjDir in future gather"
     return 1
   fi
-
   rm -f "$metrics_csv" "$metrics_log" "$final_metrics_file" $OUT/*.log 
 }
 
@@ -2052,6 +2071,9 @@ EOF
   else
     log_warn "[Sequencing Metrics] No metrics data to import — file missing or empty"
   fi
+  if [[ -f "$seq_metrics_cleaned" ]]; then
+    rm $seq_metrics_cleaned
+  fi
 }
 
 
@@ -2241,16 +2263,21 @@ destination_server() {
   #── 4) Push DB under lock ──────────────────────────────────
   (
     flock -s 200
-    rsync -vahP "$duckDB_PATH" "$push_server"
+    rsync -vahP "$duckDB_PATH" "$push_server/duckDB"
+    rsync -vahP "$OUT/multiqc_reports/*"  "$push_server/multiqc_reports"
   ) 200>"$duckDB_lockfile"
   [[ -f "$duckDB_lockfile" ]] && rm -f "$duckDB_lockfile"
 
   #── 5) Snapshot the new DB ─────────────────────────────────
   cp "$duckDB_PATH" "$duckDB_lastpush"
+  rsync -vahP "$OUT/multiqc_reports/" "$multiqc_lastpush"
 
   #── 6) Compute & humanize file size ────────────────────────
   file_bytes=$(stat -c "%s" "$duckDB_PATH")
   file_size=$(numfmt --to=iec --format="%.1f" "$file_bytes")
+
+  multiqcfolder_folder_bytes=$(du -sb "$OUT/multiqc_reports" | cut -f1)
+  multiqcfolder_folder_size=$(numfmt --to=iec --format="%.1f" <<< "$multiqcfolder_folder_bytes")
 
   #── 7) Send update email ───────────────────────────────────
   {
@@ -2286,8 +2313,11 @@ destination_server() {
     echo "  • Rows after:           $seq_rows_after"
     echo "  • New rows injected:    $seq_delta_rows"
     echo ""
-    echo "Destination: $push_server"
-    echo "File size:   $file_size"
+    echo "duckDB destination: $push_server/duckDB"
+    echo "multiQC_reports destination: $push_server/multiqc_reports"
+    echo ""
+    echo "duckDB File size:   $file_size"
+    echo "multiQC Folder size:   $multiqcfolder_folder_size"
   } | sendmail -t -f GTdrylab@jax.org
 
   log_info "[DuckDB Push] Completed and email sent."
