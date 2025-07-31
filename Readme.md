@@ -5,32 +5,51 @@ The purpose of this system is to collect sequencing and quality control (QC) met
 The codebase supporting this system is primarily written in Bash and R, with some auxiliary logic implemented in Python. The system is designed for internal use by JAX staff and integrates tightly with production pipelines to provide reliable, up-to-date metrics for monitoring sequencing operations and QC performance.
 
 > **CRITICALLY IMPORTANT:**
-> Do **NOT** change permissions for `/srv/shiny-server/.usersProfile.json` and `/srv/shiny-server/log`.
-> These files/folders must be owned by `shiny:shiny` set with `chown shiny:shiny` and have permissions `chmod 755` so the Shiny app can read, write, and execute as needed. Server will **crash** if this is violated.
+```bash 
+Do NOT change permissions for 
+  a. /srv/shiny-server/.usersProfile.json 
+  b. /srv/shiny-server/log
+  c. /srv/shiny-server/.InputDatabase/multiqc_reports
 
+These files/folders must be owned by  shiny e.g. `shiny:seqdata` and group can be set to seqdata or jaxuser. For instance
+sudo chown -R shiny:seqdata /srv/shiny-server/.InputDatabase/multiqc_reports
+sudo chmod -R 775 /srv/shiny-server/.InputDatabase/multiqc_reports
+
+Failure to give shiny the permissions read, write, and execute in these files/directory may render dashboard inaccessible.
+
+  d. The /etc/nginx/conf.d must include
+  location /multiqc_reports/ {
+        alias /srv/shiny-server/.InputDatabase/multiqc_reports/;
+        autoindex on;  
+    }
+  This location exposes the contents of the /multiqc_reports/ directory through a browser-accessible URL. Without adding that to the config, the multiQC html will not be rendered
+```
 ---
 
 ## Code Locations
 
-* On **Elion2**:
-  `/gt/research_development/qifa/elion/software/qifa-ops/0.1.0/dashboardCodes`
+```bash
+1. On Elion2 server:
+  a. /gt/research_development/qifa/elion/software/qifa-ops/0.1.0/dashboardCodes
 
-* On **ctgenometch03**:
-  `/srv/shiny-server/`
+2. On ctgenometch03 server:
+  a. /srv/shiny-server/
+  b. nginx config path: /etc/nginx/conf.d/conf.conf
+```
 
 ---
-## Local Installation (via Git)
+## Developer Mode: Install Locally via Git
 1. Recommended:
 ```bash 
-  Download and install [RStudio](https://posit.co/download/rstudio-desktop/) for easier management of R projects.
+  Download and install RStudio (https://posit.co/download/rstudio-desktop/) for easier management of R projects.
 ```
 2. Clone only the Sequencing-Dashboard: -
-
+ <!-- ##
  ```bash
 "git clone https://github.com/akinyanju/Sequencing-Dashboard.git" 
 ```
-
-  <!-- ##
+-->
+ 
 ```bash
 git clone --filter=blob:none --no-checkout https://github.com/TheJacksonLaboratory/GTDryLabOps.git
 cd GTDryLabOps
@@ -38,41 +57,43 @@ git sparse-checkout init --cone
 git sparse-checkout set Sequencing-Dashboard
 git checkout main
 ```
--->
 
 3. Configure File Paths: - 
 ```bash
 Open configPaths.R and update these two paths:
-a. base_path     <- file.path("/Fake/Path/ShinyAppCodes")
-b. dir_InputFile <- file.path("/Fake/Path/ShinyAppCodes/SampleData")
-4. Open Library/libraries.R and update:
-a. base_path <- file.path("/Fake/Path/ShinyAppCodes")
-b. in production, make sure base_path <-"/srv/shiny-server/" is uncommented and the path in your local macbook is commented out
+  a. base_path     <- file.path("/Fake/Path/ShinyAppCodes")
+  b. dir_InputFile <- file.path("/Fake/Path/ShinyAppCodes/SampleData")
+Open Library/libraries.R and update:
+  a. base_path <- file.path("/Fake/Path/ShinyAppCodes")
+  b. in production, make sure base_path <-"/srv/shiny-server/" is uncommented and the path in your local macbook is commented out
 ```
-5.  Manually open ~/ShinyAppCodes/.usersProfile.json and add your email under the Admin group or any other appropriate group to gain dashboard access.
+4.  Manually open ~/ShinyAppCodes/.usersProfile.json and add your email under the **Admin** group or *any other appropriate group* to gain dashboard access.
 5.  Adjust for Local Development (Optional)
 ```bash
-If your MacBook or local machine cannot send one-time passcodes (due to mailx issues):
----->In global/server.R:
-**Enable DEV MODE:**
-`Search for:`
-"DEV MODE: show debug code only". Uncomment the corresponding block.
-Then Disable Production Mode: To do that,
-`Search for:`
-"PRODUCTION MODE: actually email the code" Comment out that block.
+  If your MacBook or local machine cannot send one-time passcodes (due to mailx issues):
+    In global/server.R:
+      Enable DEV MODE:
+        Search for:
+          "DEV MODE: show debug code only". Uncomment the corresponding block.
+          Then Disable Production Mode: To do that,
+        Search for:
+        "PRODUCTION MODE: actually email the code" Comment out that block.
 ```
 **In production, reverse this setup by commenting out DEV MODE and Uncomment PRODUCTION MODE.**
 
 ## Metrics Locations
+```bash
+1 On Elion2: 
+  a. duckdb: /gt/data/seqdma/GTwebMetricsTables/GTdashboardMetrics.duckdb
+  b. multiQC_reports: /gt/data/seqdma/GTwebMetricsTables/multiqc_reports/*_report.html.gz
 
-* On **Elion2**:
-  `/gt/data/seqdma/GTwebMetricsTables`
-  *(Note: Some files/folders may be hidden; use `ls -la` to view)*
+  Note: Some files/folders may be hidden; use `ls -la` to view
 
-* On **ctgenometch03**:
-  `/srv/shiny-server/.InputDatabase`
-  *(Note: several files may be hidden; use `ls -la` to view)*
-
+2 On ctgenometch03 server: 
+  a. duckdb: /srv/shiny-server/.InputDatabase/duckDB/GTdashboardMetrics.duckdb
+  b. multiQC_reports: /srv/shiny-server/.InputDatabase/multiqc_reports/*_report.html.gz
+  Note: several files may be hidden; use `ls -la` to view
+```
 ---
 
 # Code Flow Overview - 
@@ -89,23 +110,24 @@ This flowchart shows how the main scripts and modules interact in the Genome Tec
 ## File-by-File Description
 
 ### Data Collection Scripts
+```bash
 
-* **crawlerSeqMetrics.sh**
+1. crawlerSeqMetrics.sh
 
   * Wrapper script that launches `gatherSequencingMetrics.sh` every 10 minutes. Time can be modified. 
   * Must be executed as `svc-gt-delivery` user.
 
-* **crawlerQCmetricsScript.sh**
+2. crawlerQCmetricsScript.sh
 
   * Wrapper script that launches `duckDBgatherwebQCmetrics.sh` every hour. Time can be modified.
 
-* **gatherSequencingMetrics.sh**
+3. gatherSequencingMetrics.sh
 
   * Scans QC directories to collect metadata and sequencing metrics (Reads, Bases, Bytes) after delivery folder permissions is validated.
   * **Admin note:**  If GT acquire new sequencer, the name must be hardcoded inside this script. Find InstrumentName and update under relevant function.
   * It output SequencingMetrics.csv that later gets imported into duckdb, handled by next script.
 
-* **duckDBgatherwebQCmetrics.sh**
+4. duckDBgatherwebQCmetrics.sh
 
   * Ingests `SequencingMetrics.csv` into duckdb
   * Search and gather QC metrics within the archival/current QC directories.
@@ -113,146 +135,152 @@ This flowchart shows how the main scripts and modules interact in the Genome Tec
   * Automatically manages DuckDB locks during import to prevent conflicts.
   * Pushes DB to destination server only if new records are detected.
 
-* **update\_projstatus.sh**
+5. update_projstatus.sh
 
   * Script used to update the project status (Delivered or Undelivered) in the DuckDB database based on processing or delivery results. do **update_projstatus.sh --help** for options
-  
-
----
+```
 
 ### Shiny Application Core
+```bash
 
-* **app.R**
+1. app.R
 
   * Entry point for launching the dashboard app. It sourced all modules.
 
-* **server.R**
+2. server.R
 
   * Hosts and integrates all server modules.
   * Manages login logic and authenticated session flow.
   * If working in development mode on your personal computer, search for "DEV MODE: show debug code only" and uncomment that block. Then, search for 'PRODUCTION MODE: actually email the code' and comment that block. **Never forget to reverse these changes when code is moved to proudction server**. You are okay if your computer has the ability to send otc. In that case, no need to uncomment DEV MODE block. 
 
-* **UI.R**
+3. ui.R
 
   * Integrates all UI modules into a cohesive layout.
 
-* **Libraries.R**
+4. Libraries.R
 
   * Loads required R libraries.
   * Attempts auto-installation if packages are missing (may fail on restricted systems). If that happens, manual installation will be required. First review the /log/missing_libraries_log.csv.
   * You must edit the log path in this file, else there will be an error if that path do not exist.
 
-* **configPaths.R**
+5. configPaths.R
 
   * Sets environment paths and configuration variables for all modules. If working in dev mode in personal computer, change the location to code and data locations
 
-* **inputFile.R**
+6. inputFile.R
 
   * Defines global variables and reactive input handlers shared across modules. Critical functions are handled here.
 
-* **auth.R**
+7. auth.R
 
   * Handles login authentication and One time code (otc) email handling.
-
----
+```
 
 ### Log Files located at /srv/shiny-server/log
 
-* **access\_log.csv**
+```bash
+1. access_log.csv
 
   * Logs user logins and OTC usage.
 
-* **DashboardMetrics\_log.csv**
+2. DashboardMetrics_log.csv
 
   * Logs all activity within the QC metrics dashboard page.
 
-* **SequencingMetrics\_log.csv**
+3. SequencingMetrics_log.csv
 
   * Logs activity related to the sequencing metrics dashboard.
 
-* **missing\_libraries\_log.csv**
+4. missing_libraries_log.csv
 
   * Logs issues related to missing or failed package loads.
 
-* **/var/log/shiny-server/**
+5. /var/log/shiny-server/
 
   * General system logs for the Shiny server.
   * Use `ls -lhrt` to find latest entries.
 
-* **wiki logs/**
+6. wiki logs/
 
   * To be implemented. At the moment, this is pointing to DashboardMetrics logs.
 
----
+```
 
 ### Sequencing Data (Landing Page)
+```bash
 
-* **landingPageUI.R**
+1. landingPageUI.R
 
   * Defines `module1_UI`: the sidebar and main panel layout for the sequencing dashboard.
   * Includes dropdown filters, tooltips, quick tour, and download button.
 
-* **landingPageServer.R**
+2. landingPageServer.R
 
   * Defines `module1_Server`: handles reactive filtering, database queries, summary metrics, and download handling.
   * Updates filters based on selected platform and available metrics.
 
-* **landingPagePlotCode.R**
+3. landingPagePlotCode.R
 
   * Handles rendering of interactive Plotly charts by metric and platform.
   * Supports grouping by lab, machine, project, or site.
   * Includes dynamic axis, hover, and responsive layouts.
 
----
+```
 
-### QC Metrics Page
+### Login to QC Metrics Page
+```bash
 
-* **dashboardSideBarUI.R**
+1. dashboardSideBarUI.R
 
   * Defines `module2_sidebar_UI`: sidebar with filters (App, Year, Lab, Metrics, Species).
   * Supports Flo/Box/Bar plot selection and live sample count.
 
-* **dashboardHeaderUI.R**
+2. dashboardHeaderUI.R
 
   * Defines `module2_header_side_body`: main layout with header, filters, and dynamic dashboard body.
   * Includes search bar, GT branding, and "Quick Tour" guide.
 
-* **dashboardBodyUI.R**
+3. dashboardBodyUI.R
 
   * Handles all tab panels and serves as the container for all rendered plots and data tables.
 
-* **dashboardServer.R**
+4. dashboardServer.R
 
   * Hosts `module2_Server`: manages user roles, session state, tab rendering, and DuckDB querying.
   * Provides cache cleanup, live counts, summary tables, and admin tools.
 
-* **DashboardPlotCode.R**
+5. DashboardPlotCode.R
 
   * Renders Box, Bar, and Flo plots using Plotly or ggplot2.
   * Handles metric type checks, axis formatting, and real-time plot switching.
 
-* **SpeciesAlignmentPlot.R**
+6. SpeciesAlignmentPlot.R
 
   * Renders stacked bar charts of species-level alignment per sample.
   * Supports tabular toggle, warning handling, and plot fallback if data is missing.
 
----
+```
 
 ### Admin & User Tools
+```bash
 
-* **AdminPage.R**
+1. AdminPage.R
 
   * Provides admin-specific views for session logs, group management, and user email updates.
   * Uses modals, filters, and log consoles for review and intervention.
 
-* **userSelfEmailUpdate.R**
+2. userSelfEmailUpdate.R
 
   * Enables non-admin users to update their email/group info via file upload or direct input.
   * Ensures group JSON is synced and validated.
 
-* **restartAppAfterCodeUpdate.sh**
+3. restartAppAfterCodeUpdate.s
 
-  * Utility script to restart the Shiny app after updating source code.
+  * Utility script to restart the Shiny app after updating source code. Must be run after any update to a code
+```
+### nginx configuration
+
+**/etc/nginx/conf.d/conf.conf:** This Nginx configuration sets up reverse proxying for Shiny apps served at /app/, enabling secure access over HTTPS. It also serves static MultiQC report files directly from the /multiqc_reports/ path, mapping to a local directory. The first server block redirects all HTTP traffic to HTTPS for security.
 
 # FAQ + Troubleshooting Guide
 
@@ -267,6 +295,36 @@ Admins should always check the relevant log files before jumping into troublesho
 
 ### Common Questions
 
+**MultiQC Report Shows "MultiQC report not available for..." — What Should I Check?**
+*Note: older projects have no multiqc reports*
+
+If the dashboard shows that a MultiQC report is unavailable for a project run that should have one, follow these steps:
+
+1. Check the file location:
+```bash
+Look inside the expected MultiQC directory:
+/srv/shiny-server/.InputDatabase/multiqc_reports
+Verify that the relevant *_report.html.gz file exists.
+```
+2. Fix file permissions (if necessary):
+If the file exists but is not accessible, ensure Shiny has the proper permissions:
+
+```bash
+sudo chown -R shiny:seqdata /srv/shiny-server/.InputDatabase/multiqc_reports
+sudo chmod -R 775 /srv/shiny-server/.InputDatabase/multiqc_reports
+```
+3. Verify Nginx configuration:
+Make sure your Nginx config (typically found in /etc/nginx/conf.d/conf.conf) includes the following block:
+
+```java
+location /multiqc_reports/ {
+    alias /srv/shiny-server/.InputDatabase/multiqc_reports/;
+    autoindex on;  
+}
+```
+
+These settings allow the Shiny app and web browser to access MultiQC reports properly.
+
 **What should I do if project is released with wrong pipeline and I need to run different pipeline?**
 *Run the new pipeline and then follow the below to remove metrics from wrong pipeline in the dashboard.*
 ```bash
@@ -279,12 +337,13 @@ cd /gt/research_development/qifa/elion/software/qifa-ops/0.1.0/dashboardCodes
 cd /gt/data/seqdma/GTwebMetricsTables/.whitelist_QCdir
 -> While in that directory, search for the keyword either the project e.g. GTBH25-HowellG-64. If more result is seeing, then select the one with correct runID <-
 grep -r  "GTBH25-HowellG-64" . 
--> open the file e.g. rnaseq.qcdir_file_update_list.txt that capture the path and specify the path to be removed. Note rnaseq is the wrong pipeline  <-
+-> open the file e.g. rnaseq.qcdir_file_update_list.txt that capture the path and specify the path to be removed. Note rnaseq is the wrong  pipeline <-
 sed -i '|/gt/data/seqdma/qifa/250722_LH00341_0190_A23325FLT3/GTBH25-HowellG-64_mm1|d' rnaseq.qcdir_file_update_list.txt
 grep -r  "GTBH25-HowellG-64" . 
 ```
 
 **Why do I see “No Data” on the dashboard?**
+```bash
 
 * The data may not have been imported correctly.
 * Possible reasons:
@@ -293,13 +352,17 @@ grep -r  "GTBH25-HowellG-64" .
   * Filters (Year, App, Platform) selected have no matching data
   * `SequencingMetrics.csv` was missing or malformed. Therefore, did not get imported into the database
 
+```
 **Why does login sometimes fail or not recognize my email?**
 
+```bash
 * OTC code may have expired or been reused.
 * Admins should check `access_log.csv` for clues.
+```
 
 **Why is my project/sample missing from the QC dashboard?**
 
+```bash
 * QC pipeline may have failed or skipped samples. 
     * check the following log paths;
         * /gt/data/seqdma/GTwebMetricsTables/.slurmlog
@@ -307,21 +370,32 @@ grep -r  "GTBH25-HowellG-64" .
         * And for sequencing Metrics csv file, check 
             * /gt/data/seqdma/GTwebMetricsTables/SeqMetrics/.slurmlogSeqMet
 * `project_ID` or `Sample_Name` casing mismatch.
-* Admins should check which table (Illumina (qc_illumina_metrics), PacBio (qc_pacbio_metrics), ONT (qc_ont_metrics)) should have the data, and inspect the relevant logs. This tables can for instance be inspected using 
-    ***duckdb /gt/data/seqdma/GTwebMetricsTables/GTdashboardMetrics.duckdb "SELECT * FROM qc_illumina_metrics WHERE project_ID = 'GT24-RobsonP-94' LIMIT 10;" | less -S***
+* Admins should check which table (Illumina (qc_illumina_metrics), PacBio (qc_pacbio_metrics), ONT (qc_ont_metrics)) should have the data, and inspect the relevant logs. This tables can for instance be inspected by runing the below command 
 
+    module use --append /gt/research_development/qifa/elion/modulefiles
+    module load duckdb/1.2.2
+
+    duckdb /gt/data/seqdma/GTwebMetricsTables/GTdashboardMetrics.duckdb "SELECT * FROM qc_illumina_metrics WHERE project_ID = 'GT24-RobsonP-94' LIMIT 10;" | less -S
+
+```
 
 **I updated a dropdown or hit Refetch, but nothing changes.**
+```bash
 
 * UI may be cached or slow to react. Wait or close the browser tab and re-enter the url. This way, linux server memory can be reset.
 * Retry after 5–10 seconds.
 * Check if DuckDB was updated. It is possible the data is not even imported. Use below to manually check that the project run is present 
-    ***duckdb /gt/data/seqdma/GTwebMetricsTables/GTdashboardMetrics.duckdb "SELECT * FROM qc_illumina_metrics WHERE Project_run_type = 'GT24-RobsonP-94-run2' LIMIT 10;" | less -S***
-* See direcotry `/gt/data/seqdma/GTwebMetricsTables/.last_import_push` for last import time or check your email.
+    
+    module use --append /gt/research_development/qifa/elion/modulefiles
+    module load duckdb/1.2.2
+    duckdb /gt/data/seqdma/GTwebMetricsTables/GTdashboardMetrics.duckdb "SELECT * FROM qc_illumina_metrics WHERE Project_run_type = 'GT24-RobsonP-94-run2' LIMIT 10;" | less -S
 
+* See directory `/gt/data/seqdma/GTwebMetricsTables/.last_import_push` for last import time or check your email.
+```
 **Why does the Download Button return an HTML file instead of CSV?**
 
 When clicking the download button, receiving a .html file (often displaying “Error generating CSV.”) typically means a silent error occurred in the server code behind the download button. To troubleshoot:
+```bash
 
 * Step-by-step Diagnostics
   * Identify Page Context
@@ -370,12 +444,15 @@ When clicking the download button, receiving a .html file (often displaying “E
       2.  Filters excluding all rows.
       3.  Pivot errors (incorrect reshape).
       4.  Writing an empty or NULL dataframe.
+```
 
 # Environment Requirements
 
+```bash
 * R ≥ 4.2.0
 * DuckDB ≥ 1.2.2
 * Email client configured (`mail` or `ssmtp`) for pipeline reports
+```
 
 #### © GTdrylab July 2025
 
