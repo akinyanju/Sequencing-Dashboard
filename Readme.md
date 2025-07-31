@@ -44,12 +44,12 @@ Failure to give shiny the permissions read, write, and execute in these files/di
   Download and install RStudio (https://posit.co/download/rstudio-desktop/) for easier management of R projects.
 ```
 2. Clone only the Sequencing-Dashboard: -
- <!-- ##
+
  ```bash
 "git clone https://github.com/akinyanju/Sequencing-Dashboard.git" 
 ```
--->
- 
+
+ <!-- ##
 ```bash
 git clone --filter=blob:none --no-checkout https://github.com/TheJacksonLaboratory/GTDryLabOps.git
 cd GTDryLabOps
@@ -80,7 +80,7 @@ Open Library/libraries.R and update:
         "PRODUCTION MODE: actually email the code" Comment out that block.
 ```
 **In production, reverse this setup by commenting out DEV MODE and Uncomment PRODUCTION MODE.**
-
+-->
 ## Metrics Locations
 ```bash
 1 On Elion2: 
