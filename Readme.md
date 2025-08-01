@@ -2,7 +2,7 @@
 
 The purpose of this system is to collect sequencing and quality control (QC) metrics, both historically and in real time, for the Genome Technologies (GT) production environment at JAX. The collected metrics are stored in a local DuckDB database (GTdashboardMetrics.duckdb, version 1.2.2), which is then pushed to a designated destination server. From there, the data is queried and sliced according to user interactions with the GT Dashboard, enabling dynamic filtering and visualization of relevant metrics.
 
-The codebase supporting this system is primarily written in Bash and R, with some auxiliary logic implemented in Python. The system is designed for internal use by JAX staff and integrates tightly with production pipelines to provide reliable, up-to-date metrics for monitoring sequencing operations and QC performance. However, anyone can download the code through git and run with a demo data.
+The codebase supporting this system is primarily written in Bash and R, with some auxiliary logic implemented in Python. The system is designed for internal use by JAX staff and integrates tightly with production pipelines to provide reliable, up-to-date metrics for monitoring sequencing operations and QC performance. **However, anyone can download the code through git and run with a demo data.**
 
 > **CRITICALLY IMPORTANT:**
 ```bash 
@@ -46,10 +46,10 @@ Failure to give shiny the permissions read, write, and execute in these files/di
 2. Clone only the Sequencing-Dashboard: -
 
  ```bash
-"git clone https://github.com/akinyanju/Sequencing-Dashboard.git" 
+git clone https://github.com/akinyanju/Sequencing-Dashboard.git
 ```
 
- <!-- ##
+  <!-- ##
 ```bash
 git clone --filter=blob:none --no-checkout https://github.com/TheJacksonLaboratory/GTDryLabOps.git
 cd GTDryLabOps
@@ -58,6 +58,8 @@ git sparse-checkout set Sequencing-Dashboard
 git checkout main
 ```
 -->
+###### Parts 3 and 4 below are needed for code to smoothly work in your local device 
+
 3. Configure File Paths: - 
 ```bash
 Open configPaths.R and update these two paths:
