@@ -57,7 +57,7 @@ git sparse-checkout init --cone
 git sparse-checkout set Sequencing-Dashboard
 git checkout main
 ```
-
+-->
 3. Configure File Paths: - 
 ```bash
 Open configPaths.R and update these two paths:
@@ -88,7 +88,7 @@ Open Library/libraries.R and update:
         "PRODUCTION MODE: actually email the code" Comment out that block.
 ```
 **In production, reverse this setup by commenting out DEV MODE and Uncomment PRODUCTION MODE.**
--->
+
 ## Metrics Locations
 ```bash
 1 On Elion2: 
