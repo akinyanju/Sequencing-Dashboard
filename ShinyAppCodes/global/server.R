@@ -384,86 +384,86 @@ server <- function(input, output, session) {
   ####################################################################################
   #DEV MODE CODE ONLY. IT MUST BE COMMENTED OUT WHEN SCRIPT IS IN PRODUCTION MODE.
   # —— DEV MODE: show debug code only ——————————————————————
-   observeEvent(input$send_otc, {
-     req(input$email)
-     if (input$email == "") {
-       showNotification("Please select an email.", type = "error", duration = 5)
-       return()
-     }
-     values$selected_email <- input$email
-
-     # generate + store
-     code <- sprintf("%06d", sample(0:999999, 1))
-     otc_storage[[input$email]] <- list(code = code, timestamp = Sys.time())
-
-     # *** LOG DEV SEND ***
-     write_log(
-       log_Dashboard,
-       "OTC_DEV_SENT",
-       paste0("Mode=DEV, Email='", input$email, "', Code='", code, "'")
-     )
-
-     # debug popup only
-     showNotification(paste("DEBUG CODE:", code), type = "message", duration = 15)
-     values$stage <- "verify"
-   })
-
-   observeEvent(input$send_otc, {
-     req(input$email)
-     if (input$email == "") {
-       showNotification("Please select an email.", type = "error", duration = 5)
-       return()
-     }
-     values$selected_email <- input$email
-     code <- sprintf("%06d", sample(0:999999, 1))
-     otc_storage[[input$email]] <- list(code = code, timestamp = Sys.time())
-     showNotification(paste("DEBUG CODE:", code), type = "message", duration = 15) # For testing only
-     values$stage <- "verify"
-   })
+   # observeEvent(input$send_otc, {
+   #   req(input$email)
+   #   if (input$email == "") {
+   #     showNotification("Please select an email.", type = "error", duration = 5)
+   #     return()
+   #   }
+   #   values$selected_email <- input$email
+   # 
+   #   # generate + store
+   #   code <- sprintf("%06d", sample(0:999999, 1))
+   #   otc_storage[[input$email]] <- list(code = code, timestamp = Sys.time())
+   # 
+   #   # *** LOG DEV SEND ***
+   #   write_log(
+   #     log_Dashboard,
+   #     "OTC_DEV_SENT",
+   #     paste0("Mode=DEV, Email='", input$email, "', Code='", code, "'")
+   #   )
+   # 
+   #   # debug popup only
+   #   showNotification(paste("DEBUG CODE:", code), type = "message", duration = 15)
+   #   values$stage <- "verify"
+   # })
+   # 
+   # observeEvent(input$send_otc, {
+   #   req(input$email)
+   #   if (input$email == "") {
+   #     showNotification("Please select an email.", type = "error", duration = 5)
+   #     return()
+   #   }
+   #   values$selected_email <- input$email
+   #   code <- sprintf("%06d", sample(0:999999, 1))
+   #   otc_storage[[input$email]] <- list(code = code, timestamp = Sys.time())
+   #   showNotification(paste("DEBUG CODE:", code), type = "message", duration = 15) # For testing only
+   #   values$stage <- "verify"
+   # })
   ####################################################################################
   ####################################################################################
   ####################################################################################
   ####################################################################################
   #PRODUCTION CODE. IT MUST BE UNCOMMENTED BEFORE USE INSIDE CTGENOMTECH03. IT MUST BE COMMENTED OUT WHEN USED IN DEV MODE
   # —— PRODUCTION MODE: actually email the code —————————————————
-   # observeEvent(input$send_otc, {
-   #   req(input$email)
-   #   values$selected_email <- input$email
-   # 
-   #   if (!mailer_available()) {
-   #     showNotification("Mailer not available.", type = "error")
-   #     return()
-   #   }
-   # 
-   #   # *** LOG PRODUCTION SEND ATTEMPT ***
-   #   write_log(
-   #     log_Dashboard,
-   #     "OTC_PROD_SEND_ATTEMPT",
-   #     paste0("Mode=PROD, sending to Email='", input$email, "'")
-   #   )
-   # 
-   #   if (issue_one_time_code(values$selected_group, input$email)) {
-   #     showNotification("One-time code sent!", type = "message", duration = 10)
-   # 
-   #     # *** LOG PRODUCTION SEND SUCCESS ***
-   #     write_log(
-   #       log_Dashboard,
-   #       "OTC_PROD_SENT",
-   #       paste0("Mode=PROD, Email='", input$email, "'")
-   #     )
-   # 
-   #     values$stage <- "verify"
-   #   } else {
-   #     showNotification("Failed to send code. Contact gtdrylab@jax.org", type = "error", duration = 15)
-   # 
-   #     # *** LOG PRODUCTION SEND FAILURE ***
-   #     write_log(
-   #       log_Dashboard,
-   #       "OTC_PROD_SEND_FAILED",
-   #       paste0("Mode=PROD, Email='", input$email, "'")
-   #     )
-   #   }
-   # })
+   observeEvent(input$send_otc, {
+     req(input$email)
+     values$selected_email <- input$email
+
+     if (!mailer_available()) {
+       showNotification("Mailer not available.", type = "error")
+       return()
+     }
+
+     # *** LOG PRODUCTION SEND ATTEMPT ***
+     write_log(
+       log_Dashboard,
+       "OTC_PROD_SEND_ATTEMPT",
+       paste0("Mode=PROD, sending to Email='", input$email, "'")
+     )
+
+     if (issue_one_time_code(values$selected_group, input$email)) {
+       showNotification("One-time code sent!", type = "message", duration = 10)
+
+       # *** LOG PRODUCTION SEND SUCCESS ***
+       write_log(
+         log_Dashboard,
+         "OTC_PROD_SENT",
+         paste0("Mode=PROD, Email='", input$email, "'")
+       )
+
+       values$stage <- "verify"
+     } else {
+       showNotification("Failed to send code. Contact gtdrylab@jax.org", type = "error", duration = 15)
+
+       # *** LOG PRODUCTION SEND FAILURE ***
+       write_log(
+         log_Dashboard,
+         "OTC_PROD_SEND_FAILED",
+         paste0("Mode=PROD, Email='", input$email, "'")
+       )
+     }
+   })
 
 
   ####################################################################################
