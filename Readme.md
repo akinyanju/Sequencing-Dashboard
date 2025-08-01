@@ -2,7 +2,7 @@
 
 The purpose of this system is to collect sequencing and quality control (QC) metrics, both historically and in real time, for the Genome Technologies (GT) production environment at JAX. The collected metrics are stored in a local DuckDB database (GTdashboardMetrics.duckdb, version 1.2.2), which is then pushed to a designated destination server. From there, the data is queried and sliced according to user interactions with the GT Dashboard, enabling dynamic filtering and visualization of relevant metrics.
 
-The codebase supporting this system is primarily written in Bash and R, with some auxiliary logic implemented in Python. The system is designed for internal use by JAX staff and integrates tightly with production pipelines to provide reliable, up-to-date metrics for monitoring sequencing operations and QC performance.
+The codebase supporting this system is primarily written in Bash and R, with some auxiliary logic implemented in Python. The system is designed for internal use by JAX staff and integrates tightly with production pipelines to provide reliable, up-to-date metrics for monitoring sequencing operations and QC performance. However, anyone can download the code through git and run with a demo data.
 
 > **CRITICALLY IMPORTANT:**
 ```bash 
@@ -67,7 +67,15 @@ Open Library/libraries.R and update:
   a. base_path <- file.path("/Fake/Path/ShinyAppCodes")
   b. in production, make sure base_path <-"/srv/shiny-server/" is uncommented and the path in your local macbook is commented out
 ```
-4.  Manually open ~/ShinyAppCodes/.usersProfile.json and add your email under the **Admin** group or *any other appropriate group* to gain dashboard access.
+4.  If ~/ShinyAppCodes/.usersProfile.json is not through git clone, manually create one. Just add the below and save it inside the hiding ".usersProfile.json". Note that the json must be located in /your/path/ShinyAppCodes/.usersProfile.json
+
+```bash
+{
+  "Admin": "admin@domain.com",
+  "GenomeTechnologies_Group_BH": "ab@domain.com"
+}
+```
+
 5.  Adjust for Local Development (Optional)
 ```bash
   If your MacBook or local machine cannot send one-time passcodes (due to mailx issues):
