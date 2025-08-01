@@ -56,6 +56,7 @@ while [[ $# -gt 0 ]]; do
     -d|--delete) delete_mode=true; shift ;;
     -t|--table) target_table="$2"; shift 2 ;;
     -v|--view) do_view=true; shift ;;
+    --apply) do_apply=true; shift ;;
     -h|--help) print_help; exit 0 ;;
     *) echo "Unknown option: $1" >&2; print_help; exit 1 ;;
   esac
