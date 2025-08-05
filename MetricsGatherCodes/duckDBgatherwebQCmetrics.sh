@@ -18,8 +18,9 @@ module load node/8.6.0
 module load duckdb/1.2.2
 # ─────────────────────────────────────────────────────────────
 # Constants and Configuration
-Email="Raman.Lawal@jax.org, Harianto.Tjong@jax.org, Gabriel.Rech@jax.org, dave.john.harrison@jax.org"
 #Email="raman.lawal@jax.org"
+Email="Raman.Lawal@jax.org,Harianto.Tjong@jax.org,Gabriel.Rech@jax.org,dave.john.harrison@jax.org"
+
 OUT="/gt/data/seqdma/GTwebMetricsTables"
 QCdir_illumina_nonarchive="/gt/data/seqdma/qifa"
 QCdir_pacbio_nonarchive="/gt/data/seqdma/qifa-pb"
@@ -2264,13 +2265,35 @@ destination_server() {
   (
     flock -s 200
     rsync -vahP "$duckDB_PATH" "$push_server/duckDB"
-    rsync -vahP "$OUT/multiqc_reports/*"  "$push_server/multiqc_reports"
+
+    # Transfer multiqc files.
+    # Note: harmless errors code 23 are due to $push_server/multiqc_reports ownership differences between shiny and jaxuser.
+    # These errors are suppressed with grep.
+
+    rsync -avhP --no-owner --no-group --no-perms --omit-dir-times \
+      "$OUT/multiqc_reports/" "$push_server/multiqc_reports" 2> >(grep -v -E 'failed to set times|rsync error: some files/attrs' >&2)
+    
+    rc=$?
+
+    if [[ $rc -eq 23 ]]; then
+      log_info "multiQC push: Transfer successful to destination server. Code 23 expected due to shiny ownership."
+    elif [[ $rc -ne 0 ]]; then
+      log_error "multiQC push fail: rsync failed with code $rc"
+      exit $rc
+    else
+      log_info "multiQC push: Transfer successful without errors."
+    fi
+    
   ) 200>"$duckDB_lockfile"
   [[ -f "$duckDB_lockfile" ]] && rm -f "$duckDB_lockfile"
 
   #── 5) Snapshot the new DB ─────────────────────────────────
-  cp "$duckDB_PATH" "$duckDB_lastpush"
-  rsync -vahP "$OUT/multiqc_reports/" "$multiqc_lastpush"
+
+  rsync -avh "$duckDB_PATH" "$duckDB_lastpush"
+  log_info "duckDB BACKUP: backup successful to $(realpath "$duckDB_lastpush")"
+
+  rsync -avh "$OUT/multiqc_reports/" "$multiqc_lastpush/"
+  log_info "multiqc_reports BACKUP: backup successful to $(realpath "$multiqc_lastpush")"
 
   #── 6) Compute & humanize file size ────────────────────────
   file_bytes=$(stat -c "%s" "$duckDB_PATH")
