@@ -2303,47 +2303,53 @@ destination_server() {
   multiqcfolder_folder_size=$(numfmt --to=iec --format="%.1f" <<< "$multiqcfolder_folder_bytes")
 
   #── 7) Send update email ───────────────────────────────────
+
   {
     echo "From: GTdrylab@jax.org"
     echo "To:   $Email"
     echo "Subject: [DASHBOARD] GT Metrics Database Update"
+    echo "Content-Type: text/html"
     echo ""
-    echo "$email_header"
-    echo ""
-    echo "ILLUMINA_QC_METRICS table updated:"
-    echo "  • Rows before:          $qc_rows_before"
-    echo "  • Rows after:           $qc_rows_after"
-    echo "  • New rows injected:    $qc_delta_rows"
-    echo "  • Total samples:        $qc_samples_after"
-    echo "  • New samples injected: $qc_delta_samples"
-    echo ""
-    echo "PACBIO_QC_METRICS table updated:"
-    echo "  • Rows before:          $pb_rows_before"
-    echo "  • Rows after:           $pb_rows_after"
-    echo "  • New rows injected:    $pb_delta_rows"
-    echo "  • Total samples:        $pb_samples_after"
-    echo "  • New samples injected: $pb_delta_samples"
-    echo ""
-    echo "ONT_QC_METRICS table updated:"
-    echo "  • Rows before:          $ont_rows_before"
-    echo "  • Rows after:           $ont_rows_after"
-    echo "  • New rows injected:    $ont_delta_rows"
-    echo "  • Total samples:        $ont_samples_after"
-    echo "  • New samples injected: $ont_delta_samples"
-    echo ""
-    echo "SEQUENCING_DATA_METRICS table updated:"
-    echo "  • Rows before:          $seq_rows_before"
-    echo "  • Rows after:           $seq_rows_after"
-    echo "  • New rows injected:    $seq_delta_rows"
-    echo ""
-    echo "duckDB destination: $push_server/duckDB"
-    echo "multiQC_reports destination: $push_server/multiqc_reports"
-    echo ""
-    echo "duckDB File size:   $file_size"
-    echo "multiQC Folder size:   $multiqcfolder_folder_size"
+    echo "<html><body style='font-family: monospace;'>"
+    echo "<p><b>$email_header</b></p>"
+
+    echo "<p><b>qc_illumina_metrics table updated:</b><br>"
+    echo "• Rows before:          $qc_rows_before<br>"
+    echo "• Rows after:           $qc_rows_after<br>"
+    echo "• New rows injected:    $qc_delta_rows<br>"
+    echo "• Total samples:        $qc_samples_after<br>"
+    echo "• New samples injected: $qc_delta_samples</p>"
+
+    echo "<p><b>qc_pacbio_metrics table updated:</b><br>"
+    echo "• Rows before:          $pb_rows_before<br>"
+    echo "• Rows after:           $pb_rows_after<br>"
+    echo "• New rows injected:    $pb_delta_rows<br>"
+    echo "• Total samples:        $pb_samples_after<br>"
+    echo "• New samples injected: $pb_delta_samples</p>"
+
+    echo "<p><b>qc_ont_metrics table updated:</b><br>"
+    echo "• Rows before:          $ont_rows_before<br>"
+    echo "• Rows after:           $ont_rows_after<br>"
+    echo "• New rows injected:    $ont_delta_rows<br>"
+    echo "• Total samples:        $ont_samples_after<br>"
+    echo "• New samples injected: $ont_delta_samples</p>"
+
+    echo "<p><b>sequencing_metrics table updated:</b><br>"
+    echo "• Rows before:          $seq_rows_before<br>"
+    echo "• Rows after:           $seq_rows_after<br>"
+    echo "• New rows injected:    $seq_delta_rows</p>"
+
+    echo "<p><b>duckDB path:</b> <span style='color:teal;'>$push_server/duckDB</span><br>"
+    echo "<b>multiQC_reports path:</b> <span style='color:teal;'>$push_server/multiqc_reports</span></p>"
+
+    echo "<p><b>duckDB File size:</b> $file_size<br>"
+    echo "<b>multiQC Folder size:</b> $multiqcfolder_folder_size</p>"
+
+    echo "</body></html>"
   } | sendmail -t -f GTdrylab@jax.org
 
   log_info "[DuckDB Push] Completed and email sent."
+
 }
 
 # ─────────────────────────────────────────────────────────────
