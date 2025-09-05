@@ -37,11 +37,16 @@ ALERT: 'crawlerQCmetricsScript' job is NOT currently running or queued (as of $(
 This may have occurred due to an unexpected failure, cancellation, or other system interruption.
 
 To resume operation, please manually resubmit the job using the following commands:
+To manually restart this job, follow these steps **exactly**:
 
-  >>> 
-  cd /gt/research_development/qifa/elion/software/qifa-ops/0.1.0/dashboardCodes
-  sbatch crawlerQCmetricsScript.sh
-  >>>
+  1. Switch to the service user account:
+     **sudo su - svc-gt-delivery**
+
+  2. Navigate to the metrics script directory:
+     cd /gt/research_development/qifa/elion/software/qifa-ops/0.1.0/dashboardCodes
+
+  3. Submit the crawler QC script:
+     sbatch crawlerQCmetricsScript.sh
 
 **NOTE:** If 'crawlerQCmetricsScript' is not resubmitted promptly, the associated duckDB web QC metrics will NOT be collected and updated.
 
