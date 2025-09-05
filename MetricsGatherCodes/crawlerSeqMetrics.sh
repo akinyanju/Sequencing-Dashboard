@@ -10,14 +10,15 @@
 #SBATCH --begin=now+1minutes
 #SBATCH --output=/gt/data/seqdma/GTwebMetricsTables/SeqMetrics/.slurmlogSeqMet/%x.%N.o%j.log
 
+#####################################
+EMAILS=("Raman.Lawal@jax.org" "Harianto.Tjong@jax.org" "Gabriel.Rech@jax.org" "dave.john.harrison@jax.org")
 scriptDir="/gt/research_development/qifa/elion/software/qifa-ops/0.1.0/dashboardCodes"
 slurmfileDir="/gt/data/seqdma/GTwebMetricsTables/SeqMetrics"
-
+#####################################
 if ! squeue --format="%.j" | grep -qw "gatherSequencingMetrics"; then
   sbatch "$scriptDir/gatherSequencingMetrics.sh"
 fi
-
-
+#####################################
 ##sudo chown svc-gt-delivery .slurmlogSeqMet
 ##remove slurm error/ouput file older than 24 hours
 if [[ -d "$slurmfileDir/.slurmlogSeqMet" ]]; then
@@ -25,4 +26,29 @@ if [[ -d "$slurmfileDir/.slurmlogSeqMet" ]]; then
 else
 	mkdir $slurmfileDir/.slurmlogSeqMet
 fi
+#####################################
+# Check if crawlerQCmetricsScript is running or queued
+if ! squeue --format="%.j" | grep -qw "crawlerQCmetricsScript"; then
+  mailx -r "GTdrylab@jax.org" \
+    -s "Missing SLURM job: crawlerQCmetricsScript" \
+    "${EMAILS[@]}" <<EOF
+ALERT: 'crawlerQCmetricsScript' job is NOT currently running or queued (as of $(date)).
+
+This may have occurred due to an unexpected failure, cancellation, or other system interruption.
+
+To resume operation, please manually resubmit the job using the following commands:
+
+  >>> 
+  cd /gt/research_development/qifa/elion/software/qifa-ops/0.1.0/dashboardCodes
+  sbatch crawlerQCmetricsScript.sh
+  >>>
+
+**NOTE:** If 'crawlerQCmetricsScript' is not resubmitted promptly, the associated duckDB web QC metrics will NOT be collected and updated.
+
+Please take action as soon as possible to restore metrics processing.
+
+- The Automation System
+EOF
+fi
+#####################################
 sbatch $0
