@@ -105,12 +105,12 @@ Notes
   Download and install RStudio (https://posit.co/download/rstudio-desktop/) for easier management of R projects.
 ```
 2. Clone only the Sequencing-Dashboard: -
- <!-- ##
+ 
  ```bash
 git clone https://github.com/akinyanju/Sequencing-Dashboard.git
 ```
--->
- 
+
+ <!-- ##
 ```bash
 git clone --filter=blob:none --no-checkout https://github.com/TheJacksonLaboratory/GTDryLabOps.git
 cd GTDryLabOps
@@ -118,6 +118,7 @@ git sparse-checkout init --cone
 git sparse-checkout set Sequencing-Dashboard
 git checkout main
 ```
+-->
 ###### Parts 3 and 4 below are needed for code to smoothly work in your local device 
 
 3. Configure File Paths: - 
