@@ -42,7 +42,7 @@ output$species_plot <- renderPlotly({
 observeEvent(input$main_tabs, {
   req(input$main_tabs == "species_tab")
   # if we’re currently in Flo mode, reset back to Box
-  if (isolate(input$plt) == "Flo") {
+  if (isolate(input$plt) == "Flowcell") {
     updateRadioButtons(session, "plt", selected = "Box", inline   = TRUE)
   }
 }, ignoreInit = TRUE)

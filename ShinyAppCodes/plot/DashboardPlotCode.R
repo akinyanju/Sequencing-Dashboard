@@ -15,7 +15,7 @@ output$plot_ui <- renderUI({
   
   # ─── FLO MODE UI ─────────────────────────────────────────────────────────────
   # ─── FLO MODE UI ─────────────────────────────────────────────────────────────
-  if (input$plt == "Flo") {
+  if (input$plt == "Flowcell") {
     dat_raw <- tryCatch({
       df <- filtered_by_year_cache()
       
@@ -328,7 +328,7 @@ output$plot <- renderPlotly({
     ####################################
     # -------- FLO PLOT --------
     ####################################
-  } else if (input$plt == "Flo") {
+  } else if (input$plt == "Flowcell") {
     data <- filtered_by_year_cache()
     if (is.null(data) || nrow(data) == 0) return(NULL)
 
