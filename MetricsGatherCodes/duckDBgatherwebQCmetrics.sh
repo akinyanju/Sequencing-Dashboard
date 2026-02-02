@@ -9,6 +9,8 @@
 #SBATCH --job-name=duckDBgatherwebQCmetrics
 #SBATCH --output=/gt/data/seqdma/GTwebMetricsTables/.slurmlog/%x.%N.o%j.log
 
+umask 002
+
 # ─────────────────────────────────────────────────────────────
 #Author: Raman Akinyanju Lawal <akinyanju.lawal@jax.org>
 # ─────────────────────────────────────────────────────────────
@@ -19,7 +21,8 @@ module load duckdb/1.2.2
 # ─────────────────────────────────────────────────────────────
 # Constants and Configuration
 #Email="raman.lawal@jax.org"
-Email="Raman.Lawal@jax.org,Harianto.Tjong@jax.org,Gabriel.Rech@jax.org,dave.john.harrison@jax.org"
+Email="Raman.Lawal@jax.org,Harianto.Tjong@jax.org,dave.john.harrison@jax.org"
+Email_list=${Email//,/ }
 
 OUT="/gt/data/seqdma/GTwebMetricsTables"
 QCdir_illumina_nonarchive="/gt/data/seqdma/qifa"
@@ -46,7 +49,7 @@ catch_error() {
   local cmd="$2"
   log_error "Error on line $line: $cmd"
   echo "[$(date)] Error on line $line: $cmd" > "$OUT/.logfile"
-  mail -s "[FAILURE] GT Metrics Update Error" "$Email" < "$OUT/.logfile"
+  mail -s "[FAILURE] GT Metrics Update Error" $Email_list < "$OUT/.logfile"
   exit 1
 }
 # ─────────────────────────────────────────────────────────────
@@ -55,7 +58,7 @@ check_duckdb_installed() {
   if ! command -v duckdb >/dev/null 2>&1; then
     log_error "DuckDB CLI not found on system."
     echo -e "DuckDB is missing on the system where this job ran.\n\nJob failed at: $(date)\nHostname: $(hostname)" \
-      | mail -s "DuckDB installation missing for $Application Pipeline" "$Email"
+      | mail -s "DuckDB installation missing for $Application Pipeline" $Email_list
     exit 1
   fi
 }
@@ -95,7 +98,7 @@ check_list_temp_script() {
   if [[ ! -f "$qifaPipelineDir/gatherApplicationMetrics.js" ]]; then
     log_error "Missing gatherApplicationMetrics.js"
     echo -e "ERROR: Missing $qifaPipelineDir/gatherApplicationMetrics.js\nProgram aborted!" \
-      | mail -s "[DASHBOARD] GT interface missing gatherApplicationMetrics.js" "$Email"
+      | mail -s "[DASHBOARD] GT interface missing gatherApplicationMetrics.js" $Email_list
     return 1
   fi
 
@@ -107,7 +110,7 @@ check_list_temp_script() {
     if [[ ! -f "$TEMPLATE_FILE" ]]; then
       log_error "Missing template: $TEMPLATE_FILE"
       echo -e "ERROR: Missing $TEMPLATE_FILE\n\nMetric collection now aborted for $Application!" \
-        | mail -s "[DASHBOARD] GT interface missing $Application.pe.report.database.template" "$Email"
+        | mail -s "[DASHBOARD] GT interface missing $Application.pe.report.database.template" $Email_list
       return 1
     fi
   fi
@@ -1573,7 +1576,7 @@ SQL
       mv "$nonarchive_tmp_file" "$qcdir_file_list"
       log_info "[$Application] will recollect $ProjDir in future gather"
       cat "$duckDB_errorlog" >&2
-      mail -s "[DASHBOARD] Failure importing PacBio metrics $Application" "$Email" <<EOF
+      mail -s "[DASHBOARD] Failure importing PacBio metrics $Application" $Email_list <<EOF
 [$Application] Failed to load CSV into temp table from: $metrics_csv
 Error details from $duckDB_errorlog:
 $(cat "$duckDB_errorlog")
@@ -1705,7 +1708,7 @@ SQL
       mv "$nonarchive_tmp_file" "$qcdir_file_list"
       log_info "[$Application] will recollect $ProjDir in future gather"
       cat "$duckDB_errorlog" >&2
-      mail -s "[DASHBOARD] Failure importing ONT metrics $Application" "$Email" <<EOF
+      mail -s "[DASHBOARD] Failure importing ONT metrics $Application" $Email_list <<EOF
 [$Application] Failed to load CSV into temp table from: $metrics_csv
 Error details from $duckDB_errorlog:
 $(cat "$duckDB_errorlog")
@@ -1928,8 +1931,6 @@ database() {
 #     - Uses flock to guard concurrent DB access
 #     - Logs row counts and status
 #     - Updates backup copy on successful import
-
-
 duckDB_call_seq() {
   seq_metrics_file="$OUT/SeqMetrics/SequencingMetrics.csv"
   seq_metrics_cleaned="$OUT/SequencingMetrics.cleaned.csv"
@@ -1953,7 +1954,6 @@ duckDB_call_seq() {
     return 0
   fi
 
-
   if [[ ! -f "$duckDB_PATH" ]]; then
     echo "[ERROR] DuckDB database not found: $duckDB_PATH" >> "$duckDB_logfile"
     return 1
@@ -1967,21 +1967,51 @@ duckDB_call_seq() {
       echo "--- [START] Import for Sequencing Metrics @ $timestamp ---" >> "$duckDB_logfile"
 
       #############################################################
-      # Clean CSV using AWK
+      # Clean CSV using AWK. If no value is in Reads,Bases,Bytes, replace NULL as 0 to allow seamles import
       #############################################################
-      awk -F',' 'BEGIN { OFS="," }
+      awk -F',' '
+      BEGIN { OFS="," }
       NR == 1 {
-        for (i = 1; i <= NF; i++) header[i] = $i
-        print $0
+        print
         next
       }
+
+      # Skip rows that are completely empty or whitespace
+      {
+        empty = 1
+        for (i = 1; i <= NF; i++) {
+          field = $i
+          gsub(/^[[:space:]]+|[[:space:]]+$/, "", field)
+          gsub(/^"|"$/, "", field)
+
+          if (field != "") {
+            empty = 0
+            break
+          }
+        }
+        if (empty) next
+      }
+
+      # Normalize Reads (11), Bases (12), Bytes (13)
+      {
+        for (i = 11; i <= 13; i++) {
+          field = $i
+          gsub(/^[[:space:]]+|[[:space:]]+$/, "", field)
+          gsub(/^"|"$/, "", field)
+
+          if (field == "" || field == "NULL") {
+            $i = 0
+          }
+        }
+      }
+
+      # Quote + escape all fields
       {
         for (i = 1; i <= NF; i++) {
-          $i = ($i == "" ? "NULL" : $i)
           gsub(/"/, "\"\"", $i)
           $i = "\"" $i "\""
         }
-        print $0
+        print
       }' "$seq_metrics_file" > "$seq_metrics_cleaned"
 
       #############################################################
@@ -2076,8 +2106,6 @@ EOF
     rm $seq_metrics_cleaned
   fi
 }
-
-
 # ─────────────────────────────────────────────────────────────
 # Create or Refresh Summary Index Table: qc_app_index
 # ─────────────────────────────────────────────────────────────
@@ -2172,9 +2200,7 @@ EOF
   ) 200>"$duckDB_lockfile"
   [[ -f "$duckDB_lockfile" ]] && rm -f "$duckDB_lockfile"
   #clean up any hanging csv file
-  if ls $OUT/*.csv $OUT/*.log 1> /dev/null 2>&1; then
-    rm $OUT/*.csv $OUT/*.log
-  fi
+  rm -f "$OUT"/*.csv "$OUT"/*.log
 }
 
 # ─────────────────────────────────────────────────────────────
@@ -2270,9 +2296,13 @@ destination_server() {
     # Note: harmless errors code 23 are due to $push_server/multiqc_reports ownership differences between shiny and jaxuser.
     # These errors are suppressed with grep.
 
-    rsync -avhP --no-owner --no-group --no-perms --omit-dir-times \
-      "$OUT/multiqc_reports/" "$push_server/multiqc_reports" 2> >(grep -v -E 'failed to set times|rsync error: some files/attrs' >&2)
-    
+    #rsync -avhP --no-owner --no-group --no-perms --omit-dir-times \
+    #  "$OUT/multiqc_reports/" "$push_server/multiqc_reports" 2> >(grep -v -E 'failed to set times|rsync error: some files/attrs' >&2)
+    rsync -avhP \
+      --no-owner --no-group --no-perms --omit-dir-times \
+      "$OUT/multiqc_reports/" "$push_server/multiqc_reports" \
+      2>&1 | grep -v -E 'failed to set times|rsync error: some files/attrs' >&2
+
     rc=$?
 
     if [[ $rc -eq 23 ]]; then
@@ -2289,10 +2319,10 @@ destination_server() {
 
   #── 5) Snapshot the new DB ─────────────────────────────────
 
-  rsync -avh "$duckDB_PATH" "$duckDB_lastpush"
+  rsync -avh --no-owner --no-group --no-perms --omit-dir-times "$duckDB_PATH" "$duckDB_lastpush"
   log_info "duckDB BACKUP: backup successful to $(realpath "$duckDB_lastpush")"
 
-  rsync -avh "$OUT/multiqc_reports/" "$multiqc_lastpush/"
+  rsync -avh --no-owner --no-group --no-perms --omit-dir-times "$OUT/multiqc_reports/" "$multiqc_lastpush/"
   log_info "multiqc_reports BACKUP: backup successful to $(realpath "$multiqc_lastpush")"
 
   #── 6) Compute & humanize file size ────────────────────────
@@ -2302,8 +2332,17 @@ destination_server() {
   multiqcfolder_folder_bytes=$(du -sb "$OUT/multiqc_reports" | cut -f1)
   multiqcfolder_folder_size=$(numfmt --to=iec --format="%.1f" <<< "$multiqcfolder_folder_bytes")
 
-  #── 7) Send update email ───────────────────────────────────
+  #── Skip email if only “air rows” were added (no real new samples) ────────
+  if (( qc_delta_samples == 0 &&
+        pb_delta_samples == 0 &&
+        ont_delta_samples == 0 &&
+        seq_delta_rows == 0 &&
+        (qc_delta_rows > 0 || pb_delta_rows > 0 || ont_delta_rows > 0) )); then
+    log_info "[DuckDB] Only non-sample air rows detected. Skipping email."
+    return 0
+  fi
 
+  #── 7) Send update email ───────────────────────────────────
   {
     echo "From: GTdrylab@jax.org"
     echo "To:   $Email"
@@ -2346,7 +2385,7 @@ destination_server() {
     echo "<b>multiQC Folder size:</b> $multiqcfolder_folder_size</p>"
 
     echo "</body></html>"
-  } | sendmail -t -f GTdrylab@jax.org
+  } | sendmail -t -f GTdrylab@jax.org $Email_list
 
   log_info "[DuckDB Push] Completed and email sent."
 
@@ -2401,7 +2440,7 @@ ACTION 4: If necessary, restore the previous known-good snapshot: Copy the lates
 Note: These steps may usually not required. The script is designed with safeguards to prevent corruption of the database under most circumstances
 EOF
 )
-    echo -e "$body" | mail -s "$email_subject" "$Email"
+    echo -e "$body" | mail -s "$email_subject" $Email_list
     echo "[ERROR] Email notification sent for failure."
 
     : > "$logfile"
@@ -2428,7 +2467,7 @@ trap 'catch_email_failure_db' EXIT
 # Purpose : Validate and expose the pipeline list file
 # ─────────────────────────────────────────────────────────────
 pipelinelist() {
-  if [[ -z "$Email" || -z "$qifaPipelineDir" ]]; then
+  if [[ -z "$Email_list" || -z "$qifaPipelineDir" ]]; then
     log_error "Required variables Email or qifaPipelineDir are not set."
     exit 1
   fi
@@ -2437,7 +2476,7 @@ pipelinelist() {
   if [[ ! -f "$PIPELINE_LIST" ]]; then
     log_error "Missing $PIPELINE_LIST"
     echo -e "ERROR: Missing pipeline list at:\n$PIPELINE_LIST\n\nExpected format:\n  atacseq\n  rnaseq\n  wgs\n\nScript aborted!" \
-      | mail -s "GT metrics dashboard script missing pipelinelist.txt" "$Email"
+      | mail -s "GT metrics dashboard script missing pipelinelist.txt" $Email_list
     exit 1
   fi
 }

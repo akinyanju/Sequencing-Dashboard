@@ -39,11 +39,11 @@ This may have occurred due to an unexpected failure, cancellation, or other syst
 To resume operation, please manually resubmit the job using the following commands:
 To manually restart this job, follow these steps **exactly**:
 
-  1. Switch to the service user account:
-     **sudo su - svc-gt-delivery**
-
-  2. Navigate to the metrics script directory:
+  1. Navigate to the metrics script directory:
      cd /gt/research_development/qifa/elion/software/qifa-ops/0.1.0/dashboardCodes
+
+  2. Verify crawlerQCmetricsScript slurm job is NOT currently running
+     squeue -a -o "%.18i %.30j" | grep -E '^\s*JOBID|crawler'
 
   3. Submit the crawler QC script:
      sbatch crawlerQCmetricsScript.sh

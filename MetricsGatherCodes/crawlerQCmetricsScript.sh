@@ -48,7 +48,10 @@ To manually restart this job, follow these steps **exactly**:
   2. Navigate to the metrics script directory:
      cd /gt/research_development/qifa/elion/software/qifa-ops/0.1.0/dashboardCodes
 
-  3. Submit the crawler script:
+  3. Verify crawlerSeqMetrics slurm job is NOT currently running
+     squeue -a -o "%.18i %.30j" | grep -E '^\s*JOBID|crawler'
+
+  4. Submit the crawler script:
      sbatch crawlerSeqMetrics.sh
 
 **IMPORTANT**: If 'crawlerSeqMetrics' is not resubmitted, sequencing run-level metrics will NOT be collected before being purged from the delivery folder, potentially leading to incomplete or outdated dashboard reports.

@@ -215,7 +215,8 @@ function collect_metrics {
 			releaseMonth=$(grep -w packageTimestamp $ProjDir/$SETJSONFILE | awk '{print $2}' | grep -o '".*"' | sed 's/"//g' | cut -d"-" -f2)
 			releaseYear=$(grep -w packageTimestamp $ProjDir/$SETJSONFILE | awk '{print $2}' | grep -o '".*"' | sed 's/"//g' | cut -d"-" -f1)
 			Project=$(grep -w project $ProjDir/$SETJSONFILE | awk '{print $2}' | grep -o '".*"' | sed 's/"//g')
-			groupFolder=$(grep deliveryFolder $ProjDir/$SETJSONFILE | awk '{print $2}' | grep -o '".*"' | sed 's/"//g' | awk -F/ '{print $4}')
+			#groupFolder=$(grep deliveryFolder $ProjDir/$SETJSONFILE | awk '{print $2}' | grep -o '".*"' | sed 's/"//g' | awk -F/ '{print $4}')
+			groupFolder=$(jq -r '.deliveryFolder | split("/") | .[3]' "$ProjDir/$SETJSONFILE")
 			if echo $Project | grep 'BH' >/dev/null 2>&1; then
                 Site="BH"
             else
@@ -396,7 +397,10 @@ function collect_metrics {
             ###collect metrics from ${projectFinal}_QCreport.csv, else, calculate that from the fastq
             if stat --format '%a' $releasePath | grep "750" >/dev/null 2>&1 ; then
                 Bytes=$(du -scb $releasePath | head -1 | cut -f1)
-                SampleSize=$(grep "Sample Size:" $releasePath/${projectFinal}_QCreport.csv | tr ':' '\t' | cut -f2)
+
+				SampleSize=$(grep -m1 "^Sample Size:" "$releasePath/${projectFinal}_QCreport.csv" \
+					| sed 's/^Sample Size:[[:space:]]*//' | cut -d',' -f1 | tr -d '\r' | xargs)
+
                 if [[ -f "$releasePath/${projectFinal}_QCreport.csv" ]] ; then
                 #First collect information from combine metrics, if it exist. Otherwise, add all necessary columns
                     if grep "combined" "$releasePath/${projectFinal}_QCreport.csv" >/dev/null 2>&1 ; then
@@ -554,7 +558,7 @@ function collect_metrics {
 function header {
     if [[ -f "$OUT/$SequencingMetrics" ]] ; then
 	    if ! grep -E "Month|Year|Project|Site|InstrumentID|RunFolder" $OUT/$SequencingMetrics >/dev/null 2>&1; then
-			sed -i -e '1iMonth,Year,Project,Site,InstrumentID,RunFolder,groupFolder,Application,FullPath,Platform,Reads,Bases,Bytes,DeliveryDirectory,SampleSize,PolymeraseRLbp' $OUT/$SequencingMetrics
+			sed -i -e '1iMonth,Year,Project,Site,InstrumentID,RunFolder,groupFolder,Application,FullPath,Platform,Reads,Bases,Bytes,DeliveryDirectory,SampleSize,PolymeraseReadLength_bp_Mean' $OUT/$SequencingMetrics
 		fi
 	fi	
 }
