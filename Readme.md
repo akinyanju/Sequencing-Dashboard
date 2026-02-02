@@ -25,6 +25,67 @@ Failure to give shiny the permissions read, write, and execute in these files/di
   This location exposes the contents of the /multiqc_reports/ directory through a browser-accessible URL. Without adding that to the config, the multiQC html will not be rendered
 ```
 ---
+> **SSL Certificate Renewal Procedure (Yearly):**
+```bash 
+The SSL certificate for dashboard must be renewed once every year, typically before the end of the calendar year, to avoid service disruption.
+
+Overview
+    a. Certificates are issued and renewed by IT
+    b. After renewal, the old certificate and key must be replaced on the server
+    c. Nginx must reference the correct certificate and key paths
+
+Step 1: Request Certificate Renewal
+  Before the certificate expiration date:
+    a. Contact IT to request a renewal of the SSL certificate
+    b. Obtain the renewed .pem certificate file and .key private key file
+
+Step 2: Replace Certificate Files
+  On the server, replace the existing certificate and key located at:
+
+    /etc/httpd/ssl/ctgenometech03.pem
+    /etc/httpd/ssl/ctgenometech03.key
+
+  Important:
+    The renewed files must be renamed exactly as:
+
+      ctgenometech03.pem
+      ctgenometech03.key
+
+  Overwrite the existing files with the renewed versions
+
+Step 3: Verify File Permissions (Recommended)
+  Ensure the certificate and key have appropriate permissions:
+    ls -l /etc/httpd/ssl/ctgenometech03.*
+
+Step 4: Update Nginx Configuration (If Filenames Differ)
+  If the renewed certificate or key cannot be renamed to the standard filenames, update the Nginx SSL configuration instead.
+
+  Edit the relevant file under:
+
+    /etc/nginx/conf.d/
+
+  Update the following directives to match the actual filenames:
+
+    ssl_certificate     /etc/httpd/ssl/ctgenometech03.pem;
+    ssl_certificate_key /etc/httpd/ssl/ctgenometech03.key;
+
+Step 5: Reload Nginx
+  After replacing the certificate and/or updating configuration:
+    sudo nginx -t
+    sudo systemctl reload nginx
+  Confirm there are no errors and that the service reloads successfully.
+
+Step 6: Validate Certificate
+  Optionally verify the certificate expiration date:
+  
+    openssl x509 -in /etc/httpd/ssl/ctgenometech03.pem -noout -dates
+
+Notes
+  a. Failure to renew or replace the certificate before expiration will result in HTTPS errors
+  b. Always complete renewal before year-end
+  c. Keep a backup of the previous certificate before replacing it
+```
+---
 
 ## Code Locations
 
@@ -44,12 +105,12 @@ Failure to give shiny the permissions read, write, and execute in these files/di
   Download and install RStudio (https://posit.co/download/rstudio-desktop/) for easier management of R projects.
 ```
 2. Clone only the Sequencing-Dashboard: -
-
+ <!-- ##
  ```bash
 git clone https://github.com/akinyanju/Sequencing-Dashboard.git
 ```
-
-  <!-- ##
+-->
+ 
 ```bash
 git clone --filter=blob:none --no-checkout https://github.com/TheJacksonLaboratory/GTDryLabOps.git
 cd GTDryLabOps
@@ -57,7 +118,6 @@ git sparse-checkout init --cone
 git sparse-checkout set Sequencing-Dashboard
 git checkout main
 ```
--->
 ###### Parts 3 and 4 below are needed for code to smoothly work in your local device 
 
 3. Configure File Paths: - 
