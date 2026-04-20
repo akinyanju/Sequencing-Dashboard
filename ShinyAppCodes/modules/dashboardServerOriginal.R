@@ -151,27 +151,6 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
                                                )
           )
         }
-        # ---- Projects tab (GenomeTechnologies only) ----
-        if (is_genome_tech()) {
-          tabs[[length(tabs) + 1]] <- tabPanel(
-            title = "SecondaryAnalysisQC",
-            value = "projects_tab",
-            div(
-              style = "width: 100%; height: 70vh; overflow: hidden; margin-top: 10px;",
-              tags$iframe(
-                src = "/projects/",
-                style = "width: 100%; height: 100%; border: none;",
-                sandbox = paste(
-                  "allow-scripts",
-                  "allow-same-origin",
-                  "allow-popups",
-                  "allow-popups-to-escape-sandbox",
-                  "allow-top-navigation-by-user-activation"
-                )
-              )
-            )
-          )
-        }
         # Render final tabset
         div(
           id = ns("normal_tabs"),

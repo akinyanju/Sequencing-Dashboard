@@ -45,7 +45,6 @@ observe({
   }
 })
 
-
 # -------------- LOGIN LOG PLOT -------------------
 # Reactive for reading the login log
 # login_log_data <- reactive({

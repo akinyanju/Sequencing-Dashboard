@@ -92,7 +92,7 @@ module2_sidebar_UI <- function(id, is_admin = reactive(FALSE)) {
                       radioButtons(
                         inputId = ns("plt"),
                         label = tagList("Plot type", info_icon("Choose how to display the data. GT users will see additioal Flo button.")),
-                        choices = c("Box", "Bar", "Flo"), selected = NULL, inline = TRUE
+                        choices = c("Box", "Bar", "Flowcell"), selected = NULL, inline = TRUE
                       ),
                       
                       # Sample Size
