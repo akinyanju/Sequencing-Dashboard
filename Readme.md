@@ -105,12 +105,12 @@ Notes
   Download and install RStudio (https://posit.co/download/rstudio-desktop/) for easier management of R projects.
 ```
 2. Clone only the Sequencing-Dashboard: -
- 
+ <!-- ##
  ```bash
 git clone https://github.com/akinyanju/Sequencing-Dashboard.git
 ```
-
- <!-- ##
+-->
+ 
 ```bash
 git clone --filter=blob:none --no-checkout https://github.com/TheJacksonLaboratory/GTDryLabOps.git
 cd GTDryLabOps
@@ -118,26 +118,32 @@ git sparse-checkout init --cone
 git sparse-checkout set Sequencing-Dashboard
 git checkout main
 ```
--->
 ###### Parts 3 and 4 below are needed for code to smoothly work in your local device 
 
 3. Configure File Paths: - 
 ```bash
-Open configPaths.R and update these two paths:
-  a. base_path     <- file.path("/Fake/Path/ShinyAppCodes")
-  b. dir_InputFile <- file.path("/Fake/Path/ShinyAppCodes/SampleData")
-Open Library/libraries.R and update:
-  a. base_path <- file.path("/Fake/Path/ShinyAppCodes")
-  b. in production, make sure base_path <-"/srv/shiny-server/" is uncommented and the path in your local macbook is commented out
+Open configPaths.R. It has two blocks:
+  #1 Production server paths (commented out by default):
+       dir_InputFile <- "/srv/shiny-server/.InputDatabase"
+       base_path     <- "/srv/shiny-server/"
+  #2 Dev/Testing Mode paths (active by default):
+       base_path     <- file.path("/Fake/Path/ShinyAppCodes")
+       dir_InputFile <- file.path("/Fake/Path/ShinyAppCodes/SampleData")
+
+For local development, just update the two paths under block #2 to point to your own clone.
+In production, comment out block #2 and uncomment block #1 instead.
+
+Note: libraries.R no longer defines its own base_path — app.R sources configPaths.R first, so libraries.R (and every other module) just inherits base_path from there. There's nothing to edit in libraries.R itself anymore.
 ```
 4.  If ~/ShinyAppCodes/.usersProfile.json is not through git clone, manually create one. Just add the below and save it inside the hiding ".usersProfile.json". Note that the json must be located in /your/path/ShinyAppCodes/.usersProfile.json
 
 ```bash
 {
-  "Admin": "admin@domain.com",
-  "GenomeTechnologies_Group_BH": "ab@domain.com"
+  "Admin": ["admin@domain.com"],
+  "GenomeTechnologies_Group_BH": ["ab@domain.com"]
 }
 ```
+Note: each group's value must be an array of emails (even for a single address) — `read_user_profile()`/`write_user_profile()` in `input/inputFiles.R` read and write this via `jsonlite`, and the live production file uses arrays throughout (including empty `[]` for groups with no members yet).
 
 5.  Adjust for Local Development (Optional)
 ```bash
@@ -195,7 +201,7 @@ This flowchart shows how the main scripts and modules interact in the Genome Tec
 3. gatherSequencingMetrics.sh
 
   * Scans QC directories to collect metadata and sequencing metrics (Reads, Bases, Bytes) after delivery folder permissions is validated.
-  * **Admin note:**  If GT acquire new sequencer, the name must be hardcoded inside this script. Find InstrumentName and update under relevant function.
+  * **Admin note:**  If GT acquire new sequencer, the name must be hardcoded inside this script. Find InstrumentName and update under relevant function. Note this script's naming convention is `CT_`/`BH_`-site-prefixed (e.g. `CT_NovaSeqX_Plus_LH00341`) — different from `duckDBgatherwebQCmetrics.sh` below, which is prefix-free. A new instrument needs its own entry added to **both** scripts, each in that script's own format.
   * It output SequencingMetrics.csv that later gets imported into duckdb, handled by next script.
 
 4. duckDBgatherwebQCmetrics.sh
@@ -205,6 +211,10 @@ This flowchart shows how the main scripts and modules interact in the Genome Tec
   * Import gathered QC metrics into `GTdashboardMetrics.duckdb`, ensuring no duplicates are added.
   * Automatically manages DuckDB locks during import to prevent conflicts.
   * Pushes DB to destination server only if new records are detected.
+  * Assigns each sample a human-readable `InstrumentID` (e.g. `NovaSeqX_Plus_LH00341`, `Revio_84148`, `PromethION_PCA100115`) at the point of ingestion, for Illumina, PacBio, and ONT alike — no raw serial numbers, no `CT_`/`BH_` site prefix.
+  * **Admin note:** the mapping for new instruments lives in three places — the `case`/`elif` blocks inside `extract_and_process_run_metrics_illumina()`, `gather_metrics_pacbio()`, and `gather_metrics_ont()` — plus a matching `CASE WHEN` inside `normalize_existing_instrument_ids()` below. A newly acquired instrument needs a new entry in all of these to be named correctly everywhere.
+  * `normalize_existing_instrument_ids()` runs once per cycle, inside `init_command_once()`, as a safety net: it re-checks every row not yet flagged `InstrumentID_Normalized = TRUE` (historical rows, an ingestion edge case, or a model added to the mapping after the row was first collected). `qc_illumina_metrics` is processed one `Project_ID` at a time — a full-table pass was found to spuriously trip that table's `UNIQUE` constraint at 35M+-row scale even with no real duplicate data present, and per-project batching avoids it; `qc_pacbio_metrics`/`qc_ont_metrics` have no such constraint and are updated in a single pass. A project that still fails is logged to `.logs/duckdb.normalize.failed_projects.log` and skipped — never fatal to the rest of the run.
+  * All historical data was already backfilled through a one-time standalone run of this same logic before it was folded into the nightly pipeline, so there's no backlog of un-renamed instruments left to catch up on.
 
 5. update_projstatus.sh
 
@@ -223,6 +233,8 @@ This flowchart shows how the main scripts and modules interact in the Genome Tec
   * Hosts and integrates all server modules.
   * Manages login logic and authenticated session flow.
   * If working in development mode on your personal computer, search for "DEV MODE: show debug code only" and uncomment that block. Then, search for 'PRODUCTION MODE: actually email the code' and comment that block. **Never forget to reverse these changes when code is moved to proudction server**. You are okay if your computer has the ability to send otc. In that case, no need to uncomment DEV MODE block. 
+  * `module2_Server("Module2", ...)` is invoked exactly once, unconditionally — not from inside an `observe()` that re-fires on `authenticated`/`app_stage` changes. `moduleServer()` stacks a brand-new, never-torn-down set of observers each time it's called again under the same id, so the old pattern meant a logout → re-login in the same tab (no page reload) could leave a stale Flowcell-visibility observer (in `dashboardServer.R`) racing the new one — the cause of the GT-only Flowcell tab occasionally appearing for a non-GT login.
+  * Session restore (`restore_session`/`restored_group`/`restored_email`) fires as three separate reactive flushes. `app_stage` only flips to `"plot"` from inside the `restored_group` handler now, so the sidebar always renders after `authenticated_group` is already populated — previously it could render once beforehand, so a GT user's Flowcell option wouldn't show up until a second, later render.
 
 3. ui.R
 
@@ -232,13 +244,13 @@ This flowchart shows how the main scripts and modules interact in the Genome Tec
 
   * Loads required R libraries.
   * Attempts auto-installation if packages are missing (may fail on restricted systems). If that happens, manual installation will be required. First review the /log/missing_libraries_log.csv.
-  * You must edit the log path in this file, else there will be an error if that path do not exist.
+  * The log path is derived automatically from `base_path` (`log_library <- file.path(base_path, "log", "missing_libraries_log.csv")`, set in `configPaths.R`) and its directory is created on load if missing — no manual path editing needed here anymore.
 
 5. configPaths.R
 
   * Sets environment paths and configuration variables for all modules. If working in dev mode in personal computer, change the location to code and data locations
 
-6. inputFile.R
+6. inputFiles.R
 
   * Defines global variables and reactive input handlers shared across modules. Critical functions are handled here.
 
@@ -271,9 +283,9 @@ This flowchart shows how the main scripts and modules interact in the Genome Tec
   * General system logs for the Shiny server.
   * Use `ls -lhrt` to find latest entries.
 
-6. wiki logs/
+6. wiki logs/ (`log/wikiTracker_log.csv`)
 
-  * To be implemented. At the moment, this is pointing to DashboardMetrics logs.
+  * Still to be implemented — `log_Wiki` and its read-side (`AdminPage.R`'s log viewer, `inputFiles.R`'s `cached_log_data$wiki`) already exist and point to their own dedicated file, but nothing in the codebase calls `write_log(log_Wiki, ...)` yet, so the file itself won't exist until that's added.
 
 ```
 
@@ -324,6 +336,7 @@ This flowchart shows how the main scripts and modules interact in the Genome Tec
 
   * Renders Box, Bar, and Flo plots using Plotly or ggplot2.
   * Handles metric type checks, axis formatting, and real-time plot switching.
+  * Compare Runs' **Year** picker is capped at 2 years selected at once (`maxOptions = 2`) and has no Select All/Deselect All — bootstrap-select's "Select All" bypasses `maxOptions` entirely, so it's deliberately left out there (the Lab/Run/Metric pickers alongside it keep Select All, since they aren't capped).
 
 6. SpeciesAlignmentPlot.R
 
@@ -345,7 +358,7 @@ This flowchart shows how the main scripts and modules interact in the Genome Tec
   * Enables non-admin users to update their email/group info via file upload or direct input.
   * Ensures group JSON is synced and validated.
 
-3. restartAppAfterCodeUpdate.s
+3. restartAppAfterCodeUpdate.sh
 
   * Utility script to restart the Shiny app after updating source code. Must be run after any update to a code
 ```
@@ -447,6 +460,16 @@ grep -r  "GTBH25-HowellG-64" .
     module load duckdb/1.2.2
 
     duckdb /gt/data/seqdma/GTwebMetricsTables/GTdashboardMetrics.duckdb "SELECT * FROM qc_illumina_metrics WHERE project_ID = 'GT24-RobsonP-94' LIMIT 10;" | less -S
+
+```
+
+**Why does an instrument show as a raw serial number (e.g. `LH00341`) instead of a friendly name (e.g. `NovaSeqX_Plus_LH00341`)?**
+```bash
+
+* New data is named at ingestion time, inside duckDBgatherwebQCmetrics.sh — the mapping lives in the InstrumentID case/elif blocks in extract_and_process_run_metrics_illumina(), gather_metrics_pacbio(), and gather_metrics_ont().
+* Anything not yet renamed is caught by normalize_existing_instrument_ids(), which runs every cycle inside init_command_once() and only touches rows where InstrumentID_Normalized is not TRUE.
+* If one specific project keeps showing a raw serial, check .logs/duckdb.normalize.failed_projects.log — that project is being skipped (not stuck forever), because renaming it would conflict with another existing row under qc_illumina_metrics's UNIQUE constraint.
+* If it's a brand-new instrument GT just acquired, it isn't in the mapping yet. Add a matching WHEN clause (on a distinguishing substring of its serial) to all three ingestion case/elif blocks above AND to the corresponding CASE WHEN inside normalize_existing_instrument_ids() — all four need updating together.
 
 ```
 
