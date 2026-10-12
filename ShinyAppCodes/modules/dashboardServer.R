@@ -1,4 +1,4 @@
-module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_ready) {
+module2_Server <- function(id, selectedGroup, authenticated_group, authenticated_email, dashboard_ready, main_tab) {
   moduleServer(id, function(input, output, session) {
     
     ns <- session$ns
@@ -82,17 +82,30 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         ## ========== NORMAL USER PAGE ==========
         # Start building tab list
         tabs <- list(
-          tabPanel("Plot",
-                   actionButton(ns("show_plot"), "View Plot",
-                                style = "background-color: tomato; color: white; font-weight: bold;"),
-                   actionButton(ns("show_multiqc"), "View MultiQC",
-                                style = "background-color: tomato; color: white; font-weight: bold;"),
+          tabPanel(HTML('<i class="ti ti-chart-bar"></i> Plot'),
+                   div(style = "padding-top: 16px;",
+                       actionButton(ns("show_plot"), "View Plot",
+                                    icon = icon("chart-column"),
+                                    style = "background-color: #185FA5; color: white; border: none; border-radius: 8px; font-weight: 500;"),
+                       actionButton(ns("show_multiqc"), "View MultiQC",
+                                    icon = icon("magnifying-glass-chart"),
+                                    style = "background-color: #185FA5; color: white; border: none; border-radius: 8px; font-weight: 500;"),
                    br(), br(),
                    tags$head(tags$style(HTML("
                     .scrollable-plot-container {
                     overflow-x: auto !important;
                     overflow-y: auto !important;
-                    height: 550px;
+                    /* Fills whatever's left of the actual browser viewport
+                       instead of a fixed 550px — on a tall screen a fixed
+                       height left a large dead strip below the plot; on a
+                       short one it could still clip. 300px accounts for the
+                       header/tabs/buttons above this box; 420px is a floor
+                       so it never gets uncomfortably short. Matches the
+                       plot figure's own height (plot_panel_height() in
+                       DashboardPlotCode.R, computed from window_h with the
+                       same 300px margin), so the figure fills this box
+                       without leaving it mostly empty. */
+                    height: max(420px, calc(100vh - 300px));
                     border: 1px solid #ccc;
                     padding: 10px;
                     background-color: #fff;
@@ -109,26 +122,35 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
                     text-align: center;
                     padding: 0 20px;
                   }"))),
-                   div(class = "scrollable-plot-container",
+                   div(class = "scrollable-plot-container gt-scrollbox",
                        uiOutput(ns("plot_multiqc_switch_ui"))
+                   ))
+          ),
+          tabPanel(title = HTML('<i class="ti ti-dna"></i> Alignment'), value = "species_tab",
+                   div(style = "padding-top: 16px;",
+                   actionButton(ns("plot_species"), "Show Plot",
+                                icon = icon("chart-column"),
+                                style = "background-color: #185FA5; color: white; border: none; border-radius: 8px; font-weight: 500;"),
+                   actionButton(ns("table_species"), "Show Table",
+                                icon = icon("table"),
+                                style = "background-color: #185FA5; color: white; border: none; border-radius: 8px; font-weight: 500;"),
+                   downloadButton(ns("download_species"), "Download Table",
+                                  style = "background-color: #185FA5; color: white; border: none; border-radius: 8px; font-weight: 500;"),
+                   br(), br(),
+                   div(style = 'width: 100%; height: max(420px, calc(100vh - 300px)); overflow-x: auto; overflow-y: auto;',
+                       uiOutput(ns("species_view_ui")))
+                   ) 
+          ),
+          tabPanel(HTML('<i class="ti ti-download"></i> Download'),
+                   div(style = "padding-top: 16px;",
+                       downloadButton(ns('download'), "Download Below Metrics",
+                                      style = "background-color: #185FA5; color: white; border: none; border-radius: 8px; font-weight: 500;"),
+                       br(), br(),
+                       fluidRow(column(12, div(class = "gt-scrollbox", style = 'overflow-x: auto; overflow-y: auto; height: max(420px, calc(100vh - 300px));',
+                                               DT::dataTableOutput(ns('dataDownload')))))
                    )
           ),
-          tabPanel(title = "Alignment", value = "species_tab",
-                   actionButton(ns("plot_species"), "Show Plot"),
-                   actionButton(ns("table_species"), "Show Table"),
-                   downloadButton(ns("download_species"), "Download Table"),
-                   br(), br(),
-                   div(style = 'width: 100%; height: 600px; overflow-x: auto; overflow-y: auto;',
-                       uiOutput(ns("species_view_ui")))
-          ),
-          tabPanel("Download",
-                   downloadButton(ns('download'), "Download below metrics",
-                                  style = "color: #fff; background-color: green; border-color: Black;"),
-                   br(), br(),
-                   fluidRow(column(12, div(style = 'overflow-x: auto; overflow-y: auto; height:600px;',
-                                           DT::dataTableOutput(ns('dataDownload')))))
-          ),
-          tabPanel("Summary",
+          tabPanel(HTML('<i class="ti ti-file-text"></i> Summary'),
                    shinycssloaders::withSpinner(
                      div(style = "max-height: 400px; overflow-y: auto;",
                          uiOutput(ns("summary_warning_ui")),
@@ -136,14 +158,14 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
                    )
           )
         )
-        tabs[[length(tabs) + 1]] <- tabPanel("Update Group Emails",
+        tabs[[length(tabs) + 1]] <- tabPanel(HTML('<i class="ti ti-mail"></i> Update Group Emails'),
                                              br(),
                                              uiOutput(ns("user_group_email_ui"))
         )
         
         # Conditionally add GroupSummary tab for GenomeTechnologies
         if (is_genome_tech()) {
-          tabs[[length(tabs) + 1]] <- tabPanel("GroupSummary",
+          tabs[[length(tabs) + 1]] <- tabPanel(HTML('<i class="ti ti-users"></i> GroupSummary'),
                                                shinycssloaders::withSpinner(
                                                  div(style = "max-height: 400px; overflow-y: auto;",
                                                      uiOutput(ns("describe_warning_ui")),  # new warning UI
@@ -154,7 +176,7 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         # ---- Projects tab (GenomeTechnologies only) ----
         if (is_genome_tech()) {
           tabs[[length(tabs) + 1]] <- tabPanel(
-            title = "SecondaryAnalysisQC",
+            title = HTML('<i class="ti ti-microscope"></i> SecondaryAnalysisQC'),
             value = "projects_tab",
             div(
               style = "width: 100%; height: 70vh; overflow: hidden; margin-top: 10px;",
@@ -176,53 +198,56 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         div(
           id = ns("normal_tabs"),
           style = "position: relative;",
-          
-          # Live Refresh Button aligned to top-right
-          tags$div(
-            style = "position: absolute; top: -4px; right: 0; margin: 5px; display: flex; align-items: center; gap: 10px; z-index: 1000;",
-            
-            uiOutput(ns("last_refresh_text")),
-            
-            actionButton(
-              ns("refresh_app_data"),
-              label = tagList(
-                tags$i(class = "fas fa-sync-alt", style = "margin-right: 6px;"),
-                span("Refetch live data here")
-              ),
-              style = "background-color: green; color: white; font-weight: bold; font-size: 14px; border: 2px solid #00cc66; border-radius: 6px; box-shadow: none; padding: 4px 10px;"
-            )
-          ),
-          
+          # ── Pill-tab CSS ──────────────────────────────────────────────────────
+          tags$head(tags$style(HTML("
+
+            .nav-tabs { border-bottom: none !important; gap: 4px; flex-wrap: wrap; }
+
+            .nav-tabs > li > a {
+              display: inline-flex !important;
+              align-items: center;
+              gap: 6px;
+              padding: 7px 15px !important;
+              border-radius: 20px !important;
+              border: 1px solid transparent !important;
+              font-size: 13px;
+              font-weight: 400;
+              color: #5F5E5A !important;
+              background: transparent !important;
+              margin: 0 !important;
+              transition: background 0.14s, color 0.14s, border-color 0.14s;
+              line-height: 1.4;
+            }
+
+            .nav-tabs > li > a:hover {
+              background: #F1EFE8 !important;
+              color: #2C2C2A !important;
+              border-color: transparent !important;
+            }
+
+            .nav-tabs > li.active > a,
+            .nav-tabs > li.active > a:hover,
+            .nav-tabs > li.active > a:focus {
+              background: #E6F1FB !important;
+              color: #185FA5 !important;
+              border-color: #B5D4F4 !important;
+              font-weight: 500;
+            }
+            .nav-tabs > li > a[data-value='Plot']::before                { content: '\\ea7f'; font-family: 'tabler-icons'; font-style: normal; font-size: 15px; line-height: 1; }
+            .nav-tabs > li > a[data-value='Summary']::before              { content: '\\eb6d'; font-family: 'tabler-icons'; font-style: normal; font-size: 15px; line-height: 1; }
+            .nav-tabs > li > a[data-value='Update Group Emails']::before  { content: '\\eb20'; font-family: 'tabler-icons'; font-style: normal; font-size: 15px; line-height: 1; }
+            .nav-tabs > li > a[data-value='GroupSummary']::before         { content: '\\ec25'; font-family: 'tabler-icons'; font-style: normal; font-size: 15px; line-height: 1; }
+          "))),
           # Tabs panel
           do.call(tabsetPanel, c(id = ns("main_tabs"), type = "tabs", tabs))
         )
       }
     })
     ####################################################################################
-    # --------Hide/Show "Flowcell" Plot Option Block--------
-    #Dynamically updates the available plot types based on group role; hides “Flo” option for non-GenomeTech users.
-    
-    observe({
-      req(authenticated_group(), selectedGroup())  # Ensure both are available
-      
-      # Hide “Flo” option in “Plot type” for non-GT users
-      shinyjs::delay(500, {
-        if (!is_genome_tech()) {
-          updateRadioButtons(session, "plt",
-                             choices = c("Box", "Bar"),  # No “Flo”
-                             selected = "Box", inline = TRUE)
-        } else {
-          # GT users still see “Box”, “Bar”, and “Flo”
-          updateRadioButtons(session, "plt",
-                             choices = c("Box", "Bar", "Flowcell"),
-                             selected = "Box", inline = TRUE)
-        }
-      })
-    })
-    ####################################################################################
     #-------- App Menu Filter (User Group–Specific) Block--------
     #Filters app list to show only apps with Investigator_Folder matching user's group, except for GenomeTech.
     #Defines qc_metrics_fetched to track whether app metrics were already fetched.
+    last_refresh_time_shared <- reactiveVal(NULL)
     
     observe({
       req(authenticated_group())
@@ -231,21 +256,22 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         # ─────────────────────────────────────────────────────────────
         # Refresh App Data: bump `input$app` via sendInputMessage
         # ─────────────────────────────────────────────────────────────
-        last_refresh_time <- reactiveVal(NULL)
+        
         app_refresh_counter <- reactiveVal(0)
         
         observeEvent(input$refresh_app_data, {
           req(input$app)
           
-          # 1. Reconnect to DuckDB (live read)
-          try(DBI::dbDisconnect(con, shutdown = TRUE), silent = TRUE)
-          con <<- DBI::dbConnect(duckdb::duckdb(), dbdir = path_to_duckdb, read_only = TRUE)
+          # 1. Reconnect to DuckDB (live read) — recreate the pool rather than yanking
+          #    the single connection object other in-flight queries may be using.
+          try(pool::poolClose(con), silent = TRUE)
+          con <<- pool::dbPool(duckdb::duckdb(), dbdir = path_to_duckdb, read_only = TRUE)
           
           # 2. Forcefully trigger downstream observers using invalidateReactive
           app_refresh_counter(app_refresh_counter() + 1)
           
           # 3. Stamp refresh time
-          last_refresh_time(Sys.time())
+          last_refresh_time_shared(Sys.time())
           
           # 4. Notify user
           showNotification(
@@ -254,23 +280,6 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
             duration = 2
           )
         })
-        
-        ###################################################################################
-        #-------- Last Refresh Timestamp Display Block --------
-        #Displays the timestamp of the last successful app data refresh.
-        #If no refresh has occurred yet, shows a placeholder message instead.
-        #This output is typically shown beside the "Refresh" button to inform users of data freshness.
-        
-        output$last_refresh_text <- renderUI({
-          time <- last_refresh_time()
-          text <- if (!is.null(time)) {
-            paste("🕒 Last fetched:", format(time, "%Y-%m-%d at %H:%M:%S"))
-          } else {
-            "🕒 No refresh yet"
-          }
-          tags$div(style = "font-size: 16px; font-weight: bold; color: #333;", text)
-        })
-        
         
         ###################################################################################
         # -------- App Access Validator Block--------
@@ -363,7 +372,13 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         
         app_loading <- reactiveVal(FALSE)
         app_ready   <- reactiveVal(FALSE)
-        
+
+        # Real (non-"NULL"/undelivered) years with delivered data for the
+        # current app — computed once below as part of populating the main
+        # release_year dropdown, and re-exposed here so Compare Runs can read
+        # it directly instead of re-running the same query a second time.
+        available_years <- reactiveVal(character(0))
+
         observeEvent(list(input$app, app_refresh_counter()), {
           req(input$app)
           app_loading(TRUE)
@@ -373,8 +388,15 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
           source_table <- session_env$app_source_table[[input$app]]
           quoted_table <- DBI::dbQuoteIdentifier(con, source_table)
           
+          # EXTRACT(YEAR FROM ...) instead of strftime('%Y', ...): both still
+          # have to evaluate try_cast on every Application-matching row
+          # before DISTINCT can dedupe it (this query's whole job is
+          # discovering which years exist, so unlike the other date filters
+          # in this file there's no fixed range to compare against instead)
+          # but returning an integer is cheaper than formatting a string per
+          # row, and it's one less function call wrapping the cast.
           sql <- sprintf("
-    SELECT DISTINCT strftime('%%Y', try_cast(Release_Date AS DATE)) AS yr
+    SELECT DISTINCT CAST(EXTRACT(YEAR FROM try_cast(Release_Date AS DATE)) AS VARCHAR) AS yr
     FROM %s
     WHERE Application = ?
       AND ProjStatus = 'Delivered'
@@ -382,7 +404,7 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
       AND TRIM(Release_Date) != ''
       AND LOWER(TRIM(Release_Date)) != 'null'
   ", quoted_table)
-          
+
           if (!is_genome_tech()) {
             group <- trimws(as.character(selectedGroup()))
             sql <- paste0(sql, " AND Investigator_Folder = ?")
@@ -390,18 +412,30 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
           } else {
             params <- list(input$app)
           }
-          
+
           sql <- paste0(sql, " ORDER BY yr DESC")
-          
+
+          # TEMPORARY timing instrumentation — remove once we've confirmed
+          # where the 5-minute app-switch delay in Compare Runs is actually
+          # going. Every app switch runs this query, so it's a prime
+          # suspect: it has to try_cast every Application-matching row
+          # before it can dedupe to distinct years, same class of cost as
+          # the compare_data_pool() query already fixed, just not
+          # resolvable with a fixed date range since discovering the years
+          # IS the point of this query.
+          .t0 <- Sys.time()
           delivered_years <- tryCatch({
             DBI::dbGetQuery(con, sql, params = params)$yr
           }, error = function(e) {
             write_log(log_Dashboard, "GET_YEARS_ERROR", paste0("Year fetch failed: ", e$message))
             character(0)
           })
+          write_log(log_Dashboard, "TIMING_AVAILABLE_YEARS",
+                     paste0("app=", input$app, " elapsed_secs=", round(as.numeric(Sys.time() - .t0, units = "secs"), 2)))
           
           delivered_years <- na.omit(delivered_years)
-          
+          available_years(delivered_years)
+
           if (!is_genome_tech()) {
             years  <- delivered_years
             labels <- delivered_years
@@ -442,9 +476,16 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
             where_year <- "AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')"
             params     <- list(input$app)
           } else {
+            # A raw BETWEEN on the cast date, not
+            # strftime('%Y', try_cast(...)) = ?: formatting the date to a
+            # string before comparing forces a full-table scan since it
+            # defeats column min/max pruning, and this same query runs on
+            # every single Application/Year change for every user — at a
+            # production scale of millions of rows that difference is the
+            # whole app's baseline responsiveness, not just Compare Runs'.
             where_year <- "
-            AND strftime('%Y', try_cast(Release_Date AS DATE)) = ? AND ProjStatus = 'Delivered'"
-            params     <- list(input$app, input$release_year)
+            AND try_cast(Release_Date AS DATE) BETWEEN ? AND ? AND ProjStatus = 'Delivered'"
+            params     <- list(input$app, paste0(input$release_year, "-01-01"), paste0(input$release_year, "-12-31"))
           }
           
           # Identify source table based on app
@@ -459,6 +500,7 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
        %s
   ", quoted_table, where_year)
           
+          .t0 <- Sys.time()
           df_out <- tryCatch(
             DBI::dbGetQuery(con, sql, params = params),
             error = function(e) {
@@ -467,7 +509,11 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
               NULL
             }
           )
-          
+          write_log(log_Dashboard, "TIMING_FILTERED_BY_YEAR_CACHE",
+                     paste0("app=", input$app, " year=", input$release_year,
+                            " rows=", if (is.null(df_out)) 0 else nrow(df_out),
+                            " elapsed_secs=", round(as.numeric(Sys.time() - .t0, units = "secs"), 2)))
+
           # Cleanup Release_Date and unify sample column
           if (!is.null(df_out) && nrow(df_out) > 0) {
             df_out$Release_Date[trimws(df_out$Release_Date) == "NULL"] <- NA
@@ -487,8 +533,255 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
             )
           }
         })
-        
-        
+
+        ###############################################################################
+        #-------- Compare Runs: scoped data pool (fast path + slow path) --------
+        # ── COST INCIDENT NOTE ──────────────────────────────────────────────
+        # An earlier version of this block ran unconditionally on every
+        # Application change for every user (not gated on Compare Runs mode
+        # at all) and pulled SELECT * for the app's ENTIRE delivered history
+        # across all years in one go. That took down the production server.
+        # A later version fixed the cost/gating but still ran its own fresh
+        # query on every app switch — several seconds of "nothing visibly
+        # happening" before anything rendered, easy to mistake for a missed
+        # click. This version fixes that: the common case (Compare Runs
+        # showing the SAME single year already selected in the main sidebar —
+        # true right after opening Compare Runs, or after switching
+        # Application, since neither touches cmp_year) reuses
+        # filtered_by_year_cache(), which the main sidebar has ALREADY loaded
+        # for that exact year/app combination — no new query at all. Only
+        # picking a genuinely different year (or a 2nd/3rd one) falls back to
+        # an actual, debounced, scoped DB query for just those (<=3) years —
+        # never the app's full history — and even that only runs while
+        # Compare Runs is active.
+
+        # A multi-select pickerInput reports one input update per checkbox
+        # click, not once when the user's done — so picking a 2nd and 3rd
+        # year in quick succession would otherwise fire the slow-path query
+        # below once per click instead of once total, each one queuing up
+        # behind the last since Shiny runs a session's reactives
+        # synchronously. Debouncing collapses rapid clicks into one query.
+        # It's only ever consulted on the slow path (see below), so it adds
+        # no delay at all to the common, fast-path case.
+        cmp_year_debounced <- debounce(reactive({ input$cmp_year }), 600)
+
+        # compare_data_pool() used to fetch full per-sample rows (value,
+        # Sample_Name, ...) for every lab/run/metric in the selected years,
+        # then leaned on R-side dplyr (filter/distinct/group_by/summarise)
+        # to turn that into the handful of numbers the chart actually
+        # needs. That's fine on a test table with a few hundred rows; on a
+        # production table with millions of rows it meant pulling millions
+        # of rows into a single R process and processing them there —
+        # `top` on the server showed the R process pinned at 100% CPU on
+        # ONE core for minutes, which is exactly what that looks like
+        # (DuckDB itself is a multi-threaded columnar engine and would show
+        # much higher CPU if the time were actually going into the query).
+        #
+        # Now this reactive ONLY answers "what labs/runs/metrics exist for
+        # these years" — a small distinct-combinations table, one row per
+        # unique (lab, run, metric) triple, not one row per sample. It
+        # feeds plot_ui's picker-choice cascade below, which only ever
+        # calls unique()/sort() on these same three columns anyway. The
+        # actual chart values are a separate, small, already-aggregated
+        # query — compare_plot_data() — run only once the user's full
+        # Year/Lab/Run/Metric selection is in place, computed by DuckDB
+        # (fast, multi-threaded, filtered to exactly what's selected)
+        # instead of by R (single-threaded, on everything in the selected
+        # years regardless of what's actually chosen).
+        compare_data_pool <- reactive({
+          # Deliberately NOT req() here: req()'s silent-error propagates up
+          # and would abort output$plot_ui's ENTIRE render the moment this is
+          # called before cmp_year exists yet (e.g. the very first render
+          # after switching into Compare Runs) — killing the Year picker too,
+          # not just leaving Lab/Run/Metric empty as intended. Returning NULL
+          # plainly lets callers treat "not ready yet" the same way they
+          # already treat "no data", exactly like this used to behave when it
+          # was a plain reactiveVal.
+          if (!isTRUE(input$plt == "Compare Runs") || is.null(input$app) ||
+              is.null(input$cmp_year) || length(input$cmp_year) == 0) {
+            return(NULL)
+          }
+
+          is_fast_path <- length(input$cmp_year) == 1 && identical(input$cmp_year, input$release_year)
+
+          if (is_fast_path) {
+            # The sidebar has already fetched this exact year/app combo
+            # (filtered_by_year_cache()) — no new query, just collapse it
+            # to distinct combinations in R. Cheap: it's a single year's
+            # worth of rows, the same data Box mode already works with
+            # every day at this scale.
+            .t0 <- Sys.time()
+            raw <- filtered_by_year_cache()
+            if (is.null(raw) || nrow(raw) == 0) return(NULL)
+            df_out <- unique(raw[c("Investigator_Folder", "Project_run_type", "name")])
+            df_out$cmp_year <- input$cmp_year
+            write_log(log_Dashboard, "TIMING_COMPARE_POOL_FAST",
+                       paste0("app=", input$app, " year=", input$cmp_year,
+                              " raw_rows=", nrow(raw), " pool_rows=", nrow(df_out),
+                              " elapsed_secs=", round(as.numeric(Sys.time() - .t0, units = "secs"), 2)))
+          } else {
+            years <- head(cmp_year_debounced(), 2)
+            # Same reasoning as the guard above: a debounced reactive returns
+            # nothing at all until its first delay period elapses, so treat
+            # that the same way — a plain "not ready yet" NULL, not a thrown
+            # req() failure that would abort the caller's whole render.
+            if (length(years) == 0) return(NULL)
+
+            source_table <- session_env$app_source_table[[input$app]]
+            quoted_table <- DBI::dbQuoteIdentifier(con, source_table)
+
+            # One raw date-range comparison per selected year, bound as
+            # parameters (never string-interpolated — input$cmp_year is
+            # client-controllable, so these still have to go through the
+            # same placeholder binding as any other user-supplied value).
+            year_bounds <- paste(rep("(try_cast(Release_Date AS DATE) BETWEEN ? AND ?)", length(years)), collapse = " OR ")
+            year_params <- as.vector(rbind(paste0(years, "-01-01"), paste0(years, "-12-31")))
+
+            # DISTINCT on just 3 columns (plus a computed year) instead of
+            # every raw row: one row per unique lab/run/metric combination
+            # that exists in these years, not one row per sample. For a
+            # table with millions of per-sample rows this is typically a
+            # few thousand rows at most.
+            sql <- sprintf("
+    SELECT DISTINCT Investigator_Folder, Project_run_type, name,
+           CAST(EXTRACT(YEAR FROM try_cast(Release_Date AS DATE)) AS VARCHAR) AS cmp_year
+      FROM %s
+     WHERE Application = ?
+       AND ProjStatus = 'Delivered'
+       AND (%s)
+  ", quoted_table, year_bounds)
+
+            .t0 <- Sys.time()
+            df_out <- tryCatch(
+              DBI::dbGetQuery(con, sql, params = c(list(input$app), as.list(year_params))),
+              error = function(e) {
+                write_log(log_Dashboard, "COMPARE_POOL_ERROR", paste0("Compare Runs pool query failed: ", e$message))
+                NULL
+              }
+            )
+            write_log(log_Dashboard, "TIMING_COMPARE_POOL_SLOW",
+                       paste0("app=", input$app, " years=", paste(years, collapse=","),
+                              " pool_rows=", if (is.null(df_out)) 0 else nrow(df_out),
+                              " elapsed_secs=", round(as.numeric(Sys.time() - .t0, units = "secs"), 2)))
+          }
+
+          df_out
+        })
+
+        # The actual chart data: a small, targeted, DuckDB-side
+        # filter+dedup+aggregate, run only once the user has a complete
+        # Year/Lab/Run/Metric selection. This replaces what used to be a
+        # dplyr pipeline in output$plot (DashboardPlotCode.R) operating on
+        # compare_data_pool()'s old (large, per-sample-row) result — same
+        # filter criteria and same dedup-before-averaging logic, just
+        # computed by DuckDB against the real table instead of by R against
+        # an already-fetched data frame, since it's DuckDB that's built
+        # (and multi-threaded) for exactly this kind of aggregation.
+        compare_plot_data <- reactive({
+          if (!isTRUE(input$plt == "Compare Runs") || is.null(input$app) ||
+              is.null(input$cmp_year) || is.null(input$cmp_lab) ||
+              is.null(input$cmp_run) || is.null(input$cmp_metrics) ||
+              length(input$cmp_year) == 0 || length(input$cmp_lab) == 0 ||
+              length(input$cmp_run) == 0 || length(input$cmp_metrics) == 0) {
+            return(NULL)
+          }
+
+          source_table <- session_env$app_source_table[[input$app]]
+          quoted_table <- DBI::dbQuoteIdentifier(con, source_table)
+
+          table_cols <- tryCatch(DBI::dbListFields(con, source_table), error = function(e) character(0))
+          sample_col <- if ("Sample_Name" %in% table_cols) "Sample_Name"
+                        else if ("Sample_ID" %in% table_cols) "Sample_ID"
+                        else NA_character_
+          if (is.na(sample_col)) return(NULL)
+          quoted_sample_col <- DBI::dbQuoteIdentifier(con, sample_col)
+
+          years <- head(input$cmp_year, 2)
+          year_bounds <- paste(rep("(try_cast(Release_Date AS DATE) BETWEEN ? AND ?)", length(years)), collapse = " OR ")
+          year_params <- as.vector(rbind(paste0(years, "-01-01"), paste0(years, "-12-31")))
+
+          lab_ph    <- paste(rep("?", length(input$cmp_lab)), collapse = ",")
+          run_ph    <- paste(rep("?", length(input$cmp_run)), collapse = ",")
+          metric_ph <- paste(rep("?", length(input$cmp_metrics)), collapse = ",")
+
+          # ROW_NUMBER() ... = 1 replicates the old
+          # distinct(Sample_Name, Project_run_type, name, .keep_all = TRUE)
+          # step — dedupe exact-duplicate sample/run/metric rows BEFORE
+          # averaging, so a duplicated row (if the source table has one)
+          # can't silently skew the mean. The Domain*/Species* exclusion
+          # matches the same fixed list output$plot filtered out in R.
+          sql <- sprintf("
+    WITH dedup AS (
+      SELECT Project_run_type, name,
+             try_cast(replace(CAST(value AS VARCHAR), ',', '') AS DOUBLE) AS value,
+             ROW_NUMBER() OVER (PARTITION BY %s, Project_run_type, name) AS rn
+        FROM %s
+       WHERE Application = ?
+         AND ProjStatus = 'Delivered'
+         AND (%s)
+         AND Investigator_Folder IN (%s)
+         AND Project_run_type IN (%s)
+         AND name IN (%s)
+         AND name NOT IN ('Domain1','Domain2','Domain3','Domain4','Species1','Species2','Species3','Species4','Species5')
+    )
+    SELECT Project_run_type, name, AVG(value) AS value
+      FROM dedup
+     WHERE rn = 1 AND value IS NOT NULL
+     GROUP BY Project_run_type, name
+  ", quoted_sample_col, quoted_table, year_bounds, lab_ph, run_ph, metric_ph)
+
+          params <- c(
+            list(input$app),
+            as.list(year_params),
+            as.list(input$cmp_lab),
+            as.list(input$cmp_run),
+            as.list(input$cmp_metrics)
+          )
+
+          .t0 <- Sys.time()
+          result <- tryCatch(
+            DBI::dbGetQuery(con, sql, params = params),
+            error = function(e) {
+              write_log(log_Dashboard, "COMPARE_PLOT_DATA_ERROR", paste0("Compare Runs plot data query failed: ", e$message))
+              NULL
+            }
+          )
+          write_log(log_Dashboard, "TIMING_COMPARE_PLOT_DATA",
+                     paste0("app=", input$app, " years=", paste(years, collapse=","),
+                            " labs=", length(input$cmp_lab), " runs=", length(input$cmp_run),
+                            " metrics=", length(input$cmp_metrics),
+                            " result_rows=", if (is.null(result)) 0 else nrow(result),
+                            " elapsed_secs=", round(as.numeric(Sys.time() - .t0, units = "secs"), 2)))
+          result
+        })
+
+        # Lets output$plot_ui show a "Preparing your plots..." placeholder
+        # the instant Application changes while already in Compare Runs,
+        # instead of a blank panel while compare_data_pool() re-queries for
+        # the new app. Set synchronously/cheaply as soon as the trigger
+        # fires; cleared once compare_data_pool() actually finishes.
+        #
+        # Deliberately keyed on input$app ONLY, not input$cmp_year: the
+        # freshly-created cmp_year picker's own initial value round-tripping
+        # to the server (right after first entering Compare Runs) also
+        # changes input$cmp_year, and if THAT also flipped this flag on and
+        # off, output$plot_ui (which depends on this flag) would render the
+        # placeholder and then the real layout within the same reactive
+        # flush that already replaces the picker DOM once — reintroducing
+        # the exact "recreate the picker DOM while something else is mid
+        # teardown" race that caused the blank-panel bug in the first place.
+        # An Application change never has that problem: it doesn't coincide
+        # with the pickers' own first round-trip.
+        compare_pool_loading <- reactiveVal(FALSE)
+
+        observeEvent(input$app, {
+          if (isTRUE(input$plt == "Compare Runs")) compare_pool_loading(TRUE)
+        }, ignoreInit = TRUE)
+
+        observeEvent(compare_data_pool(), {
+          compare_pool_loading(FALSE)
+        }, ignoreNULL = FALSE)
+
         ###########################################################P#####################################
         #-------- Populate Lab Choices Block--------
         #Normalizes and updates the Lab (var1) dropdown based on filtered data by year.
@@ -501,32 +794,41 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
        
         observeEvent(list(input$app, input$release_year), {
           req(input$app, input$release_year, selectedGroup(), authenticated_group())
-          
-          # 1) Detect correct source table from app
-          source_table <- session_env$app_source_table[[input$app]]
-          quoted_table <- DBI::dbQuoteIdentifier(con, source_table)
-          
-          # 2) Build year predicate and parameter list
-          if (input$release_year == "NULL") {
-            where_year <- "
+
+          # Non-GT users are always restricted to their own lab, so the
+          # distinct-Investigator_Folder scan below (a full pass over the
+          # selected Application/Year on potentially huge tables like rnaseq)
+          # would only be run to have its result thrown away. Skip it
+          # entirely for non-GT users — this is the single biggest win
+          # available for their initial Application-switch delay.
+          if (!is_genome_tech()) {
+            labs <- trimws(as.character(selectedGroup()))
+          } else {
+            # 1) Detect correct source table from app
+            source_table <- session_env$app_source_table[[input$app]]
+            quoted_table <- DBI::dbQuoteIdentifier(con, source_table)
+
+            # 2) Build year predicate and parameter list
+            if (input$release_year == "NULL") {
+              where_year <- "
       AND (
         ProjStatus != 'Delivered'
         OR Release_Date IS NULL
         OR TRIM(Release_Date) = ''
         OR LOWER(TRIM(Release_Date)) = 'null'
       )"
-            params <- list(input$app)
-          } else {
-            where_year <- "
-              AND strftime('%Y', try_cast(Release_Date AS DATE)) = ?
+              params <- list(input$app)
+            } else {
+              where_year <- "
+              AND try_cast(Release_Date AS DATE) BETWEEN ? AND ?
               AND ProjStatus = 'Delivered'
             "
-            params     <- list(input$app, input$release_year)
-          }
-          
-          # 3) Construct SQL for dynamic source
-          sql <- sprintf(
-            "SELECT DISTINCT Investigator_Folder
+              params     <- list(input$app, paste0(input$release_year, "-01-01"), paste0(input$release_year, "-12-31"))
+            }
+
+            # 3) Construct SQL for dynamic source
+            sql <- sprintf(
+              "SELECT DISTINCT Investigator_Folder
      FROM %s
      WHERE Application = ?
        %s
@@ -537,33 +839,32 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
            OR LOWER(TRIM(Investigator_Folder)) IN ('null','na')
          THEN 1 ELSE 0 END,
        Investigator_Folder",
-            quoted_table, where_year
-          )
-          
-          raw <- tryCatch(
-            DBI::dbGetQuery(con, sql, params = params)$Investigator_Folder,
-            error = function(e) {
-              write_log(log_Dashboard, "DROPDOWN_ERROR", paste0("Lab query failed: ", e$message))
-              character(0)
-            }
-          )
-          
-          # 4) Normalize blanks/NA → "Missing Lab"
-          labs <- ifelse(
-            is.na(raw) |
-              trimws(raw) == "" |
-              tolower(trimws(raw)) %in% c("null", "na"),
-            "Missing Lab",
-            trimws(raw)
-          )
-          
-          # 5) Restrict for non-GT users to only their lab
-          if (!is_genome_tech()) {
-            labs <- trimws(as.character(selectedGroup()))
-          } else {
+              quoted_table, where_year
+            )
+
+            .t0_lab <- Sys.time()
+            raw <- tryCatch(
+              DBI::dbGetQuery(con, sql, params = params)$Investigator_Folder,
+              error = function(e) {
+                write_log(log_Dashboard, "DROPDOWN_ERROR", paste0("Lab query failed: ", e$message))
+                character(0)
+              }
+            )
+            write_log(log_Dashboard, "TIMING_DROPDOWN_LAB",
+                       paste0("app=", input$app, " year=", input$release_year,
+                              " elapsed_secs=", round(as.numeric(Sys.time() - .t0_lab, units = "secs"), 2)))
+
+            # 4) Normalize blanks/NA → "Missing Lab"
+            labs <- ifelse(
+              is.na(raw) |
+                trimws(raw) == "" |
+                tolower(trimws(raw)) %in% c("null", "na"),
+              "Missing Lab",
+              trimws(raw)
+            )
             labs <- unique(labs)
           }
-          
+
           # 6) Update Lab (var1) dropdown
           freezeReactiveValue(input, "var1")
           updatePickerInput(session, "var1",
@@ -604,10 +905,10 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
             params <- list(input$app)
           } else {
             year_sql <- "
-              AND strftime('%Y', try_cast(Release_Date AS DATE)) = ?
+              AND try_cast(Release_Date AS DATE) BETWEEN ? AND ?
               AND ProjStatus = 'Delivered'
             "
-            params <- list(input$app, input$release_year)
+            params <- list(input$app, paste0(input$release_year, "-01-01"), paste0(input$release_year, "-12-31"))
           }
           
           # 3) Lab clause
@@ -637,6 +938,7 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
           )
           
           # 5) Execute query safely
+          .t0_projid <- Sys.time()
           raw_proj <- tryCatch(
             DBI::dbGetQuery(con, sql, params = params)$Project_ID,
             error = function(e) {
@@ -644,6 +946,9 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
               character(0)
             }
           )
+          write_log(log_Dashboard, "TIMING_DROPDOWN_PROJECT_ID",
+                     paste0("app=", input$app, " year=", input$release_year,
+                            " elapsed_secs=", round(as.numeric(Sys.time() - .t0_projid, units = "secs"), 2)))
           
           # 6) Normalize to "Missing Project"
           projs <- ifelse(
@@ -690,10 +995,10 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
             params <- list(input$app)
           } else {
             year_sql <- "
-              AND strftime('%Y', try_cast(Release_Date AS DATE)) = ?
+              AND try_cast(Release_Date AS DATE) BETWEEN ? AND ?
               AND ProjStatus = 'Delivered'
             "
-            params <- list(input$app, input$release_year)
+            params <- list(input$app, paste0(input$release_year, "-01-01"), paste0(input$release_year, "-12-31"))
           }
           
           # 3) Lab clause
@@ -739,6 +1044,7 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
             quoted_table, year_sql, lab_sql, proj_sql
           )
           
+          .t0_runtype <- Sys.time()
           run_raw <- tryCatch(
             DBI::dbGetQuery(con, sql, params = params)$Project_run_type,
             error = function(e) {
@@ -746,6 +1052,9 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
               character(0)
             }
           )
+          write_log(log_Dashboard, "TIMING_DROPDOWN_RUN_TYPE",
+                     paste0("app=", input$app, " year=", input$release_year,
+                            " elapsed_secs=", round(as.numeric(Sys.time() - .t0_runtype, units = "secs"), 2)))
           
           # 6) Normalize
           runs <- ifelse(
@@ -777,7 +1086,6 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
           
         })
         
-        
         ###########################################################P#####################################
         #-------- Update Metric and Species Dropdowns on Run Type Change Block --------
         #Updates the Metric (var5) and Species (var6) menus based on filtered data for the selected Project Run Type, excluding domain/species and Flo-only metrics.
@@ -800,10 +1108,10 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
               params <- list(input$app)
             } else {
               year_sql <- "
-              AND strftime('%Y', try_cast(Release_Date AS DATE)) = ?
+              AND try_cast(Release_Date AS DATE) BETWEEN ? AND ?
               AND ProjStatus = 'Delivered'
             "
-              params <- list(input$app, input$release_year)
+              params <- list(input$app, paste0(input$release_year, "-01-01"), paste0(input$release_year, "-12-31"))
             }
             
             # 3) Lab clause
@@ -841,6 +1149,7 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
             
             # ── Metrics ────────────────────────────────────────────────
             sql_metrics <- paste0("SELECT DISTINCT name ", base_where, " ORDER BY name")
+            .t0_metrics <- Sys.time()
             metrics_raw <- tryCatch(
               DBI::dbGetQuery(con, sql_metrics, params = params)$name,
               error = function(e) {
@@ -848,6 +1157,9 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
                 character(0)
               }
             )
+            write_log(log_Dashboard, "TIMING_DROPDOWN_METRICS",
+                       paste0("app=", input$app, " year=", input$release_year,
+                              " elapsed_secs=", round(as.numeric(Sys.time() - .t0_metrics, units = "secs"), 2)))
             
             excl <- paste0("^(", paste(c(paste0("Domain", 1:4), paste0("Species", 1:5)), collapse = "|"), ")$")
             filtered_metrics <- setdiff(metrics_raw[!grepl(excl, metrics_raw)], flo_only_metrics)
@@ -886,6 +1198,7 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
             
             # ── Species ────────────────────────────────────────────────
             sql_species <- paste0("SELECT DISTINCT Species ", base_where, " ORDER BY Species")
+            .t0_species <- Sys.time()
             species_raw <- tryCatch(
               DBI::dbGetQuery(con, sql_species, params = params)$Species,
               error = function(e) {
@@ -893,6 +1206,9 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
                 character(0)
               }
             )
+            write_log(log_Dashboard, "TIMING_DROPDOWN_SPECIES",
+                       paste0("app=", input$app, " year=", input$release_year,
+                              " elapsed_secs=", round(as.numeric(Sys.time() - .t0_species, units = "secs"), 2)))
             
             species_choices <- sort(na.omit(species_raw))
             
@@ -917,19 +1233,19 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         #When Flo plot is selected and Lab input stabilizes, update Flowcell options for Flo plot (flo_flowcell) based on filtered data.
         #Preserves previously selected flowcell if still valid.
         
-        # ─────────────────────────────────────────────────────────────
-        # Toggle Flo vs Standard inputs
-        # ─────────────────────────────────────────────────────────────
         observe({
           req(input$plt)
-          if (input$plt == "Flowcell") {
+          if (input$plt %in% c("Flowcell", "Compare Runs")) {
+            # Compare Runs manages its own Year/Lab/Run/Metric pickers inline
+            # (see plot/DashboardPlotCode.R), so the shared sidebar ones would
+            # just be redundant — same treatment Flowcell already gets.
             shinyjs::hide("var3"); shinyjs::hide("var5"); shinyjs::hide("var6")
-            shinyjs::show("flo_flowcell"); shinyjs::show("flo_runs"); shinyjs::show("flo_metric")
           } else {
             shinyjs::show("var3"); shinyjs::show("var5"); shinyjs::show("var6")
-            shinyjs::hide("flo_flowcell"); shinyjs::hide("flo_runs"); shinyjs::hide("flo_metric")
           }
         })
+        
+
         
         # ─────────────────────────────────────────────────────────────
         # 1) Populate Flo Flowcell
@@ -949,10 +1265,10 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
               year_params <- list(input$app)
             } else {
               year_sql    <- "
-              AND strftime('%Y', try_cast(Release_Date AS DATE)) = ?
+              AND try_cast(Release_Date AS DATE) BETWEEN ? AND ?
               AND ProjStatus = 'Delivered'
             "
-              year_params <- list(input$app, input$release_year)
+              year_params <- list(input$app, paste0(input$release_year, "-01-01"), paste0(input$release_year, "-12-31"))
             }
             
             # --- Lab clause + params, handling "Missing Lab" specially ---
@@ -1028,10 +1344,10 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
               year_params <- list(input$app)
             } else {
               year_sql    <- "
-              AND strftime('%Y', try_cast(Release_Date AS DATE)) = ?
+              AND try_cast(Release_Date AS DATE) BETWEEN ? AND ?
               AND ProjStatus = 'Delivered'
             "
-              year_params <- list(input$app, input$release_year)
+              year_params <- list(input$app, paste0(input$release_year, "-01-01"), paste0(input$release_year, "-12-31"))
             }
             
             # --- Lab clause + params ---
@@ -1113,10 +1429,10 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
               year_params <- list(input$app)
             } else {
               year_sql    <- "
-              AND strftime('%Y', try_cast(Release_Date AS DATE)) = ?
+              AND try_cast(Release_Date AS DATE) BETWEEN ? AND ?
               AND ProjStatus = 'Delivered'
             "
-              year_params <- list(input$app, input$release_year)
+              year_params <- list(input$app, paste0(input$release_year, "-01-01"), paste0(input$release_year, "-12-31"))
             }
             
             # --- Lab clause ---
@@ -1183,7 +1499,106 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
             })
           }
         )
-        
+
+        # ─────────────────────────────────────────────────────────────
+        # Compare Runs: cascading picker updates (Year -> Lab -> Run -> Metric)
+        # Lab/Run/Metric are all derived in-memory from compare_data_pool(),
+        # which holds only the (max 3) years the user actually selected in
+        # cmp_year — not the app's full history — so no fresh DB query is
+        # needed for this part of the cascade specifically. cmp_year itself
+        # changing is what triggers compare_data_pool() to re-query, scoped
+        # to whatever years are now selected (see that block above).
+        # ─────────────────────────────────────────────────────────────
+
+        # Deliberately NOT keyed on input$app OR input$plt: output$plot_ui (in
+        # DashboardPlotCode.R) already recomputes this entire Year->Lab->
+        # Run->Metric cascade together, consistently, from scratch whenever
+        # the app switches or the user switches into Compare Runs (it
+        # rebuilds the picker DOM directly, with fresh choices baked in).
+        # Adding input$app here too would let this observer fire in the same
+        # instant using input$cmp_year/cmp_lab's still-stale (previous-app)
+        # values — a real race that clobbered plot_ui's correct choices
+        # with empty ones derived from a year/lab that don't exist in the
+        # new app's data. Same problem with input$plt: the moment the user
+        # switches Box -> Compare Runs (or back in again), this observer
+        # would fire at the exact same instant output$plot_ui rebuilds the
+        # cmp_lab picker's DOM from scratch — updatePickerInput() below would
+        # race that DOM replacement and could hit the widget mid-teardown,
+        # throwing a client-side JS error ("Cannot read properties of
+        # undefined (reading 'setValue')") that aborts the render and leaves
+        # the whole panel blank. req() below still gates this to only take
+        # effect while in Compare Runs; it should just only react to the
+        # user's own picks, not to entering the mode.
+        observeEvent(input$cmp_year, {
+          req(input$plt == "Compare Runs", input$cmp_year)
+          pool <- compare_data_pool()
+          req(pool)
+
+          by_year <- pool[pool$cmp_year %in% input$cmp_year, ]
+
+          if (is_genome_tech()) {
+            lab_opts <- sort(unique(by_year$Investigator_Folder))
+          } else {
+            lab_opts <- trimws(as.character(selectedGroup()))
+          }
+
+          # Default to just the first lab, not all of them — keeps the
+          # initial comparison small; users can add more labs themselves.
+          prev <- isolate(input$cmp_lab)
+          sel  <- intersect(prev, lab_opts)
+          sel  <- if (length(sel) > 0) sel else lab_opts[1]
+
+          freezeReactiveValue(input, "cmp_lab")
+          updatePickerInput(session, "cmp_lab", choices = lab_opts, selected = sel)
+        })
+
+        # Same reasoning as above — not keyed on input$app or input$plt.
+        observeEvent(input$cmp_lab, {
+          req(input$plt == "Compare Runs", input$cmp_year, input$cmp_lab)
+          pool <- compare_data_pool()
+          req(pool)
+
+          by_lab <- pool[pool$cmp_year %in% input$cmp_year &
+                           pool$Investigator_Folder %in% input$cmp_lab, ]
+          run_opts <- sort(unique(by_lab$Project_run_type))
+
+          prev <- isolate(input$cmp_run)
+          sel  <- intersect(prev, run_opts)
+          sel  <- if (length(sel) > 0) sel else head(run_opts, 3)
+
+          freezeReactiveValue(input, "cmp_run")
+          updatePickerInput(session, "cmp_run", choices = run_opts, selected = sel)
+        })
+
+        # Same reasoning as above — not keyed on input$app or input$plt.
+        observeEvent(input$cmp_run, {
+          req(input$plt == "Compare Runs", input$cmp_year, input$cmp_lab, input$cmp_run)
+          pool <- compare_data_pool()
+          req(pool)
+
+          by_run <- pool[pool$cmp_year %in% input$cmp_year &
+                           pool$Investigator_Folder %in% input$cmp_lab &
+                           pool$Project_run_type %in% input$cmp_run, ]
+
+          excl <- paste0("^(", paste(c(paste0("Domain", 1:4), paste0("Species", 1:5)), collapse = "|"), ")$")
+          metric_opts <- sort(unique(by_run$name[!grepl(excl, by_run$name)]))
+          metric_opts <- setdiff(metric_opts, flo_only_metrics)
+
+          pct_metrics   <- metric_opts[grepl("PCT", metric_opts)]
+          std_metrics   <- metric_opts[!grepl("PCT", metric_opts)]
+          metric_groups <- list("📊 Standard Metrics" = std_metrics, "📉 PCT Metrics" = pct_metrics)
+
+          preferred <- intersect(c("Reads_Total", "Reads_Filtered"), metric_opts)
+          default_metrics <- if (length(preferred) > 0) preferred else head(metric_opts, 1)
+
+          prev <- isolate(input$cmp_metrics)
+          sel  <- intersect(prev, metric_opts)
+          sel  <- if (length(sel) > 0) sel else default_metrics
+
+          freezeReactiveValue(input, "cmp_metrics")
+          updatePickerInput(session, "cmp_metrics", choices = metric_groups, selected = sel)
+        })
+
         ###########################################################
         #-------- Clear Flo Dropdowns When Empty Block --------
         #If no flowcell is selected, clear the available runs.
@@ -1235,13 +1650,17 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         session_env$search_trigger <- reactiveVal()
         
         # 1. Search via button click
+        # 1. Search via button click
         observeEvent(input$search_btn, {
           isolate({
             search_term <- trimws(input$global_search)
             if (nzchar(search_term)) {
-              #Force re-trigger even if same string
-              session_env$search_trigger(NULL)
-              session_env$search_trigger(search_term)
+              # Use a list with random token so observer always fires,
+              # even when searching the same term twice in a row
+              session_env$search_trigger(list(
+                term  = search_term,
+                token = runif(1)
+              ))
             }
           })
         })
@@ -1250,13 +1669,16 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         observeEvent(input$global_search, {
           search_term <- trimws(input$global_search)
           if (nzchar(search_term)) {
-            session_env$search_trigger(search_term)
+            session_env$search_trigger(list(
+              term  = search_term,
+              token = runif(1)
+            ))
           }
         })
         
-        # 3. Search execution logic (debounced/centralized)
+        # 3. Search execution logic
         observeEvent(session_env$search_trigger(), {
-          search_input <- trimws(session_env$search_trigger())
+          search_input <- trimws(session_env$search_trigger()$term) 
           req(nzchar(search_input))
           
           tables_to_search <- c("qc_illumina_metrics", "qc_pacbio_metrics", "qc_ont_metrics")
@@ -1289,22 +1711,37 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
           run_found  <- first_row$Project_run_type[[1]]
           
           # Update upstream App + Year
-          updateSelectInput(session, "app", selected = app_found)
-          updateSelectInput(session, "release_year", selected = year_found)
-          
-          # Save downstream targets for delayed update
+          # Save downstream targets
           session_env$search_lab  <- lab_found
           session_env$search_run  <- run_found
           session_env$search_data <- all_matches
+          
+          # Check if app or year actually changed
+          app_changed  <- !identical(isolate(input$app), app_found)
+          year_changed <- !identical(isolate(input$release_year), year_found)
+          
+          if (app_changed || year_changed) {
+            # App or year is different — update them and let the chain cascade
+            updateSelectInput(session, "app", selected = app_found)
+            updateSelectInput(session, "release_year", selected = year_found)
+          } else {
+            # Same app and year — chain won't fire, so directly update var1 and var3
+            updatePickerInput(session, "var1", selected = lab_found)
+            later::later(function() {
+              updatePickerInput(session, "var3", selected = run_found)
+              session_env$search_run <- NULL
+              session_env$search_lab <- NULL
+            }, delay = 0.5)
+          }
         })
         
         
         observeEvent(input$var1, {
           isolate({
             lab_found <- session_env$search_lab
-            
             if (!is.null(lab_found) && lab_found %in% input$var1) {
-              updateSelectInput(session, "var1", selected = lab_found)
+              # Clear all other selections, select ONLY the searched lab
+              updatePickerInput(session, "var1", selected = lab_found)
               session_env$search_lab <- NULL
             }
           })
@@ -1313,10 +1750,13 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         observeEvent(input$var3, {
           isolate({
             run_found <- session_env$search_run
-            
-            if (!is.null(run_found) && run_found %in% input$var3) {
-              updateSelectInput(session, "var3", selected = run_found)
-              session_env$search_run <- NULL
+            if (!is.null(run_found)) {
+              runs_available <- input$var3
+              if (run_found %in% runs_available) {
+                # Clear all other selections, select ONLY the searched run
+                updatePickerInput(session, "var3", selected = run_found)
+                session_env$search_run <- NULL
+              }
             }
           })
         })
@@ -1340,6 +1780,14 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         # Render the appropriate UI based on the button clicked
         output$plot_multiqc_switch_ui <- renderUI({
           if (selected_plot_tab() == "plot") {
+            # NOTE: do NOT wrap this uiOutput in shinycssloaders::withSpinner().
+            # Tried that (to show loading feedback while plot_ui recomputes)
+            # and it broke Compare Runs: plot_ui's content varies a lot
+            # between renders (a placeholder div, the full picker+plot
+            # layout, or nothing), unlike the single steady shape
+            # withSpinner() is meant for (plotOutput/tableOutput/etc), and it
+            # left the panel permanently blank after switching into Compare
+            # Runs. A working blank moment beats a broken spinner.
             uiOutput(ns("plot_ui"))
           } else {
             uiOutput(ns("multiqc_ui"))
@@ -1368,7 +1816,14 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
           } else {
             warning_msg <- NULL
           }
-          
+
+          if (basename(selected) != selected || grepl("\\.\\.", selected, fixed = TRUE)) {
+            return(div(
+              style = "background-color: #f8d7da; border-left: 5px solid #f44336; padding: 15px; border-radius: 6px; font-weight: bold; font-size: 20px; color: #a94442;",
+              "Invalid selection."
+            ))
+          }
+
           # Handle compressed .gz file
           report_gz <- paste0(selected, "_report.html.gz")
           file_gz_path <- file.path(MULTIQC_DIR, report_gz)
@@ -1411,13 +1866,23 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
           
           # File is served via /multiqc_reports path
           file_url <- sprintf("/multiqc_reports/%s", report_html)
-          
+
           tagList(
             warning_msg,
             div(
-              style = "margin-bottom: 10px; background-color: #e3f2fd; border-left: 5px solid #2196f3; padding: 10px; font-size: 20px; border-radius: 6px;",
+              style = "margin-bottom: 10px; background-color: #e3f2fd; border-left: 5px solid #2196f3; padding: 10px; font-size: 20px; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;",
               tags$p(style = "font-weight: bold; margin: 0; color: #0d47a1;",
-                     paste("Currently viewing MultiQC for:", selected))
+                     paste("Currently viewing MultiQC for:", selected)),
+              tags$a(
+                href = file_url,
+                download = report_html,
+                style = "background-color: #185FA5; border: none; font-weight: 500; color: #fff;
+                         padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 16px;
+                         white-space: nowrap;",
+                onmouseover = "this.style.backgroundColor='#0C447C'",
+                onmouseout = "this.style.backgroundColor='#185FA5'",
+                "⬇ Download MultiQC Report"
+              )
             ),
             div(
               style = "width: 100%; height: 75vh; overflow: hidden; padding: 0; margin: 0;",
@@ -1473,7 +1938,7 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
           year_clause <- if (input$release_year == "NULL") {
             " AND (ProjStatus != 'Delivered' OR Release_Date IS NULL OR TRIM(Release_Date) = '' OR LOWER(TRIM(Release_Date)) = 'null')"
           } else {
-            " AND strftime('%Y', try_cast(Release_Date AS DATE)) = ?
+            " AND try_cast(Release_Date AS DATE) BETWEEN ? AND ?
               AND ProjStatus = 'Delivered'"
           }
           
@@ -1513,7 +1978,7 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
           
           # Build params in correct order
           params <- list(input$app)
-          if (input$release_year != "NULL") params <- c(params, input$release_year)
+          if (input$release_year != "NULL") params <- c(params, paste0(input$release_year, "-01-01"), paste0(input$release_year, "-12-31"))
           if (!("Missing Lab" %in% input$var1))     params <- c(params, input$var1)
           if (!("Missing Project" %in% input$var2)) params <- c(params, input$var2)
           if (!("Missing Run" %in% input$var3))     params <- c(params, input$var3)
@@ -1563,11 +2028,6 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
             filter(!is.na(value))
         })
         
-        #output$debug_metric <- renderText({
-        #  df <- react_input_long()
-        #  cat("Returned rows:", nrow(df), "\n")
-        #  str(head(df))
-        #})
         ####################################################################################
         # ---- Sample count summary by folder ----
         sample_size <- reactive({
@@ -1624,9 +2084,6 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
         
         
         # ---- Data table preview ----
-        # output$dataDownload <- DT::renderDataTable({
-        #   downloadfunc()
-        # })
         output$dataDownload <- DT::renderDataTable({
           DT::datatable(downloadfunc(), options = list(scrollX = TRUE))
         })
@@ -1918,7 +2375,7 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
             span(
               paste0(format(app_sample_count, big.mark = ","),
                      " (of ", format(total_samples, big.mark = ","), ")"),
-              style = "color: #4497f2; font-weight: bold; font-size: 18px;"
+              style = "color: #4497f2; font-weight: bold; font-size: 22px;"
             )
           })
         })
@@ -1956,6 +2413,103 @@ module2_Server <- function(id, selectedGroup, authenticated_group, dashboard_rea
       }
     })
     ####################################################################################
+    ####################################################################################
+    # ── Navbar right items — only shown after successful login ──────────────────────
+    # authenticated_group() is NULL before login; non-NULL after.
+    # This output lives outside the is_admin() check so it always evaluates.
+    ####################################################################################
+    output$navbar_authenticated_items <- renderUI({
+      req(authenticated_group())
+      req(!isTRUE(authenticated_group() == "Admin"))
+      req(isTRUE(main_tab() == "Login to QC metrics dashboard"))
+      req(isTRUE(dashboard_ready()))
+      
+      div(class = "gt-navbar-right",
+          
+          div(class = "global-search-wrapper",
+              div(class = "global-search-input-container",
+                  div(class = "global-search-input",
+                      textInput(ns("global_search"),
+                                label       = NULL,
+                                placeholder = "by 'PROJECT RUN TYPE' e.g. 23-li-004-run2",
+                                width       = "100%")
+                  ),
+                  tags$span(class = "clear-search", HTML("&times;"))
+              ),
+              actionButton(ns("search_btn"),
+                           label = icon("search"),
+                           class = "global-search-button")
+          ),
+          
+          # Launches the animated guided tour (see www/gt-tour.js).
+          actionLink(
+            ns("about_info"),
+            label = tags$span(class = "gt-nav-link",
+                              icon("info-circle"),
+                              "Quick Tour")
+          ),
+          
+          uiOutput(ns("menu_task_items")),
+          
+          tags$img(src   = "GTlogo.png",
+                   height = "30px",
+                   style  = "vertical-align: middle; opacity: 0.9;")
+      )
+    })
+    ####################################################################################
+    # ── Refetch bar — shown in tab row, only when logged in to QC dashboard ──────────
+    ####################################################################################
+    output$refetch_bar_ui <- renderUI({
+      req(authenticated_group())
+      req(!isTRUE(authenticated_group() == "Admin"))
+      req(isTRUE(main_tab() == "Login to QC metrics dashboard"))
+      req(isTRUE(dashboard_ready()))
+      
+      div(
+        style = paste(
+          "display: flex;",
+          "align-items: center;",
+          "gap: 8px;",
+          "font-family: 'Inter', sans-serif;"
+        ),
+        
+        # Timestamp
+        uiOutput(ns("last_refresh_text_tabrow")),
+        
+        # Refetch button — steel blue, visible but not aggressive
+        actionButton(
+          ns("refresh_app_data"),
+          label = tagList(
+            tags$i(class = "fas fa-sync-alt", style = "margin-right: 5px;"),
+            "Refetch live data here"
+          ),
+          style = paste(
+            "background-color: #185FA5;",
+            "color: white;",
+            "font-weight: 500;",
+            "font-size: 12px;",
+            "border: none;",
+            "border-radius: 8px;",
+            "padding: 5px 12px;",
+            "box-shadow: none;",
+            "cursor: pointer;"
+          )
+        )
+      )
+    })
+    ################
+    output$last_refresh_text_tabrow <- renderUI({
+      time <- last_refresh_time_shared()
+      text <- if (!is.null(time)) {
+        paste0("🕒 Last fetched: ", format(time, "%Y-%m-%d at %H:%M:%S"))
+      } else {
+        "🕒 No refresh yet"
+      }
+      tags$span(
+        style = "font-size: 12px; color: #64748b; white-space: nowrap;",
+        text
+      )
+    })
     ####################################ADMIN PAGE################################################
     source(userSelfEmailUpdate, local = TRUE)
     source(AdminPage, local = TRUE)

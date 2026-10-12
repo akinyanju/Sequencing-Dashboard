@@ -3,6 +3,11 @@ module1_Server <- function(id) {
     id,
     function(input, output, session) {
       ######################################################################################
+      # Initialise sample counts cache on startup
+      observeEvent(TRUE, {
+        init_sample_counts()
+      }, once = TRUE, ignoreInit = FALSE)
+      ######################################################################################
       observeEvent(input$option, {
         req(input$option)  
         
@@ -178,14 +183,14 @@ module1_Server <- function(id) {
           return()
         }
         try({
-          # Close any previous connection
-          DBI::dbDisconnect(con, shutdown = TRUE)
+          # Close the previous pool rather than yanking the shared connection
+          pool::poolClose(con)
           gc()  # Release file handles
           Sys.sleep(0.1)
         }, silent = TRUE)
-        
+
         # Reconnect (read-only)
-        con <<- DBI::dbConnect(duckdb::duckdb(), dbdir = path_to_duckdb, read_only = TRUE)
+        con <<- pool::dbPool(duckdb::duckdb(), dbdir = path_to_duckdb, read_only = TRUE)
         # Force downstream update
         seq_reload_trigger(runif(1))  # This will re-trigger InputSeqMet()
         # Update timestamp
@@ -254,15 +259,91 @@ module1_Server <- function(id) {
                           selected = head(metric_choices))
       })
       #####################################################################################
+      
       output$last_refresh_text <- renderUI({
         time <- last_refresh_time()
         text <- if (!is.null(time)) {
-          paste("🕒 Last fetched on", format(time, "%Y-%m-%d at %H:%M:%S"))
+          paste("Last fetched on", format(time, "%Y-%m-%d at %H:%M:%S"))
         } else {
-          "🕒 No data fetched yet"
+          "No data fetched yet"
         }
-        tags$div(style = "font-size: 16px; font-weight: bold; color: #333;", text)
+        tags$div(
+          style = "font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 6px;",
+          tags$i(class = "fa fa-clock-o", style = "color: #94a3b8;"),
+          text
+        )
       })
+      #####################################################################################
+      # ── Stat cards 
+      output$stat_cards <- renderUI({
+        # React to filter changes — no isolate()
+        platforms <- input$platform
+        apps      <- input$application
+        years     <- input$year
+        
+        # Total samples from cache
+        total_samples <- tryCatch({
+          df <- sample_counts_cache()
+          if (is.null(df) || nrow(df) == 0) "—" else formatC(sum(df$Sample_Count), format = "d", big.mark = ",")
+        }, error = function(e) "—")
+        
+        # Platforms
+        platform_text  <- if (is.null(platforms) || length(platforms) == 0) "—" else
+          paste(tools::toTitleCase(tolower(platforms)), collapse = " · ")
+        platform_count <- if (is.null(platforms)) 0 else length(platforms)
+        
+        # Applications
+        app_count <- if (is.null(apps) || length(apps) == 0) "—" else as.character(length(apps))
+        
+        # Years
+        total_year_choices <- tryCatch(length(get_distinct_years()), error = function(e) 0)
+        years_label <- if (is.null(years) || length(years) == 0) "—" else
+          paste0(length(years), " / ", total_year_choices)
+        years_text <- if (is.null(years) || length(years) == 0) "—" else
+          paste0(min(years), " – ", max(years))
+        
+        # Total plots being rendered below (platform x metric combinations)
+        selected_metrics_for_count <- input$metrics
+        if (!is.null(input$more_plot) && input$more_plot == "Yes" &&
+            !is.null(input$more_plots_opt) && input$more_plots_opt == "Project" &&
+            length(selected_metrics_for_count) > 0) {
+          selected_metrics_for_count <- selected_metrics_for_count[1]
+        }
+        n_plots <- if (is.null(platforms) || is.null(selected_metrics_for_count)) 0 else
+          length(platforms) * length(selected_metrics_for_count)
+        plots_value <- if (n_plots == 0) "—" else as.character(n_plots)
+        plots_sub   <- if (n_plots == 0) "select filters to view" else "scroll down to view all"
+        
+        div(class = "gt-stat-row",
+            div(class = "gt-stat-card teal",
+                div(class = "gt-stat-label", "Plots Below"),
+                div(class = "gt-stat-value", plots_value),
+                div(class = "gt-stat-sub", plots_sub)
+            ),
+            div(class = "gt-stat-card wide",
+                div(class = "gt-stat-label", "Total Samples"),
+                div(class = "gt-stat-value", total_samples),
+                div(class = "gt-stat-sub", "across all applications")
+            ),
+            div(class = "gt-stat-card green",
+                div(class = "gt-stat-label", "Platforms"),
+                div(class = "gt-stat-value", platform_count),
+                div(class = "gt-stat-sub", platform_text)
+            ),
+            div(class = "gt-stat-card amber",
+                div(class = "gt-stat-label", "Applications"),
+                div(class = "gt-stat-value", app_count),
+                div(class = "gt-stat-sub", "across selected years")
+            ),
+            div(class = "gt-stat-card purple",
+                div(class = "gt-stat-label", "Years Shown"),
+                div(class = "gt-stat-value", years_label),
+                div(class = "gt-stat-sub", years_text)
+            )
+        )
+      })
+        
+      
       ######################################################################################
        react_input_Main <- reactive({
         req(input$year, input$period, input$platform, input$application, input$metrics)
