@@ -31,7 +31,29 @@ output$plot_1 <- renderUI({
   
   plot_output_list <- lapply(input$platform, function(pf) {
     lapply(selected_metrics, function(metric) {
-      plotlyOutput(ns(paste0("plot_1_", pf, "_", metric)), height = "500px")
+      # Badge label based on metric
+      badge_label <- if (metric == "Bases") "Gbp" else "Billions"
+      # Title text matching plotly annotation
+      card_title  <- paste(pf, "\u2014", metric)
+      
+      div(
+        class = "gt-plot-card-anchor",
+        style = "background:#ffffff; border:0.5px solid #e2e8f0; border-radius:10px; padding:14px; margin-bottom:12px;",
+        # Card header row
+        div(
+          style = "display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;",
+          tags$span(
+            style = "font-size:14px; font-weight:500; color:#1e293b; font-family:'Inter',sans-serif;",
+            card_title
+          ),
+          tags$span(
+            style = "font-size:11px; background:#E6F1FB; color:#185FA5; border:0.5px solid #B5D4F4; border-radius:20px; padding:2px 10px; font-family:'Inter',sans-serif; font-weight:500;",
+            badge_label
+          )
+        ),
+        # Plot output
+        plotlyOutput(ns(paste0("plot_1_", pf, "_", metric)), height = "480px")
+      )
     })
   }) |> unlist(recursive = FALSE)
   
@@ -66,8 +88,8 @@ observe({
           req(input$option, input$more_plot, input$more_plots_opt)
           
           xlegend <- if (input$option == "Yes") "Months" else "Quarters"
-          ylegend <- if (metric_local == "Bases") paste0(metric_local, " (Gb)") else paste0(metric_local, " (G)")
-          MetricsUnit <- if (metric_local == "Bases") " (Gb)" else " (G)"
+          ylegend <- if (metric_local == "Bases") paste0(metric_local, " (Gbp)") else paste0(metric_local, " (Billions)")
+          MetricsUnit <- if (metric_local == "Bases") " (Gbp)" else " (Billions)"
           ##################################################################
           #Filter to include both the selected metrics and platform data
           df_metric <- react_input_grp()[[metric_local]]
@@ -85,7 +107,7 @@ observe({
             }
           }
           ##################################################################
-          title_text <- paste(pf_local, "-", metric_local)
+          title_text <- ""
           
           ##################################################################
           plotMachine <- function() {
@@ -146,7 +168,7 @@ observe({
                 xaxis = list(title = xlegend, tickangle = 300,
                              categoryorder = "array", categoryarray = ~ reorder(year_period, AppCount)),
                 barmode = 'stack',
-                annotations = list(list(text = paste(pf_local),x = 0,y = 1.05,  xref = "paper",yref = "paper",showarrow = FALSE,font = list(size = 18, family = "Arial", color = "black"), xanchor = "left"))
+                annotations = list(list(text = "",x = 0,y = 1.05,  xref = "paper",yref = "paper",showarrow = FALSE,font = list(size = 18, family = "Arial", color = "black"), xanchor = "left"))
               )  %>% config(responsive = TRUE)
           }
           
@@ -211,8 +233,8 @@ observe({
               layout(
                 hovermode = "x",
                 yaxis = list(title = ylegend), barmode = 'stack',
-                title = list(text = paste(pf_local, "-", metric_local), x = 0),
-                margin = list(t = 130, r = 180)
+                title = list(text = "", x = 0),
+                margin = list(t = 40, r = 180)
                 )
           }
           
