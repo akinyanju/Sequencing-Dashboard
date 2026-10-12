@@ -99,7 +99,6 @@ issue_one_time_code <- function(group_name, to_email) {
     paste0(
       "Group='", group_name,
       "', Email='", to_email,
-      "', Code='", code,
       "', ExpiresAt='", format(expiry, "%Y-%m-%d %H:%M:%S"), "'"
     )
   )
@@ -111,4 +110,23 @@ issue_one_time_code <- function(group_name, to_email) {
     paste0("Sent to '", to_email, "'? ", sent)
   )
   invisible(sent)
+}
+
+# ------------------------------------------------------------
+# Signed session tokens for "remember me" / page-refresh restore.
+# Generated fresh per app process, so a server restart invalidates
+# every previously remembered browser session.
+# ------------------------------------------------------------
+.session_secret <- paste(sample(c(letters, LETTERS, 0:9), 48, replace = TRUE), collapse = "")
+
+make_session_token <- function(group, email, expires_at) {
+  payload <- paste(group, email, expires_at, sep = "|")
+  digest::hmac(key = .session_secret, object = payload, algo = "sha256")
+}
+
+verify_session_token <- function(group, email, expires_at, token) {
+  if (is.null(group) || is.null(email) || is.null(expires_at) || is.null(token)) return(FALSE)
+  if (!nzchar(group) || !nzchar(email) || !nzchar(token)) return(FALSE)
+  if (is.na(suppressWarnings(as.numeric(expires_at))) || as.numeric(expires_at) < as.numeric(Sys.time())) return(FALSE)
+  identical(make_session_token(group, email, expires_at), token)
 }
