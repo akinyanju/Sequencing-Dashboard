@@ -27,7 +27,7 @@ server <- function(input, output, session) {
     }
   }
   ####################################################################################
- 
+  
   # ---- Reactive Polling to Auto-Update users_data including Group and Email ----
   users_data_reactive <- reactivePoll(
     intervalMillis = 10000,
@@ -35,7 +35,7 @@ server <- function(input, output, session) {
     checkFunc = function() file.info(json_path)$mtime,
     valueFunc = function() {
       sync_json_with_duckdb_labs(con, json_path) #This below one liner check and import new lab.
-      users_data <- jsonlite::fromJSON(readLines(json_path, warn = FALSE))
+      users_data <- read_user_profile(json_path)
       valid_groups <- names(users_data)
       expanded_users_data <- users_data
       gt_groups <- grep("^GenomeTechnologies", valid_groups, value = TRUE)
@@ -75,12 +75,10 @@ server <- function(input, output, session) {
   const timestamp = localStorage.getItem('auth_timestamp');
   const group = localStorage.getItem('selected_group');
   const email = localStorage.getItem('selected_email');
-
   if (auth === 'true' && timestamp && group !== 'Admin') {
     const now = new Date();
     const then = new Date(timestamp);
     const daysDiff = (now - then) / (1000 * 60 * 60 * 24);
-
     if (daysDiff < 30) {
       Shiny.setInputValue('restore_session', Math.random());
       Shiny.setInputValue('restored_group', group);
@@ -92,52 +90,54 @@ server <- function(input, output, session) {
       localStorage.removeItem('selected_email');
     }
   } else {
-    // Also clear if group is Admin or anything else unexpected
     localStorage.removeItem('authenticated');
     localStorage.removeItem('auth_timestamp');
     localStorage.removeItem('selected_group');
     localStorage.removeItem('selected_email');
-
     if (sessionStorage.getItem('authenticated') === 'true') {
       Shiny.setInputValue('restore_session', Math.random());
       Shiny.setInputValue('restored_group', sessionStorage.getItem('selected_group'));
       Shiny.setInputValue('restored_email', sessionStorage.getItem('selected_email'));
-      }
     }
   }
-  )();")
+})();")
   
   ####################################################################################
-  #Persist email in browser storage. To restore values$selected_email in session restore, save it during login:
-  
   # Restore session
+  # app_stage is deliberately NOT set to "plot" here. The page-load JS above
+  # sends restore_session/restored_group/restored_email as three separate
+  # Shiny.setInputValue() calls; Shiny processes each incoming input as its
+  # own reactive flush, so restore_session's flush can complete (and render
+  # the sidebar via output$main_ui) before restored_group's flush even runs.
+  # That let the sidebar render once with authenticated_group still NULL —
+  # is_genome_tech() reads FALSE, so a GT user's Flowcell option only
+  # appeared once the (unfired-order-dependent) second flush replaced the
+  # sidebar. app_stage now flips to "plot" from inside the restored_group
+  # handler below instead, so the sidebar only ever renders once
+  # authenticated_group is already populated.
   observeEvent(input$restore_session, {
     values$authenticated <- TRUE
-    values$app_stage <- "plot"
-    
-    shinyjs::delay(500, {
-      runjs("Shiny.setInputValue('restored_group', localStorage.getItem('selected_group') || sessionStorage.getItem('selected_group'));")
-      runjs("Shiny.setInputValue('restored_email', sessionStorage.getItem('selected_email'));")
-    })
-    
   })
+
   ####################################################################################
   # Restore group
   observeEvent(input$restored_group, {
     values$selected_group <- input$restored_group
     values$authenticated_group <- input$restored_group
+    if (isTRUE(values$authenticated)) {
+      values$app_stage <- "plot"
+      dashboard_ready(TRUE)
+    }
   })
+  
   ####################################################################################
   # Restore email and log access only after both are restored
   observeEvent(input$restored_email, {
     values$selected_email <- input$restored_email
-    
     first_name <- sub("\\..*", "", input$restored_email)
     first_name <- paste0(toupper(substring(first_name, 1, 1)), substring(first_name, 2))
-    
     if (!is.null(values$authenticated_group)) {
-      #showNotification("Welcome back! You are still authenticated.", type = "message")
-      showNotification(paste0("Welcome back, ", first_name, "! You are still authenticated."),type = "message")
+      showNotification(paste0("Welcome back, ", first_name, "! You are still authenticated."), type = "message")
       log_access(values$authenticated_group, values$selected_email)
     }
   })
@@ -150,8 +150,18 @@ server <- function(input, output, session) {
     values$selected_group <- NULL
     values$selected_email <- NULL
     values$authenticated <- FALSE
+    values$authenticated_group <- NULL
     values$app_stage <- "message"
-    runjs("sessionStorage.removeItem('authenticated');")
+    dashboard_ready(FALSE)
+    runjs("
+      localStorage.removeItem('authenticated');
+      localStorage.removeItem('auth_timestamp');
+      localStorage.removeItem('selected_group');
+      localStorage.removeItem('selected_email');
+      sessionStorage.removeItem('authenticated');
+      sessionStorage.removeItem('selected_group');
+      sessionStorage.removeItem('selected_email');
+    ")
     showNotification("Logged out.", type = "error")
   })
   ####################################################################################
@@ -163,7 +173,7 @@ server <- function(input, output, session) {
         actionButton(
           "logout",
           label = tagList(icon("sign-out-alt"), "Logout"),
-          style = "background-color:  #4497f2; color: white; border: none; font-size: 16px;",
+          style = "background-color: #185FA5; color: white; border: none; font-size: 14px; font-weight: 500; border-radius: 8px; padding: 8px 16px;",
           class = "btn btn-sm"
         )
       )
@@ -211,7 +221,10 @@ server <- function(input, output, session) {
                        "group",
                        label = NULL,
                        choices = {
-                         groups <- setdiff(users_data_reactive()$valid_groups, c("NULL", "jax"))
+                         groups <- setdiff(
+                           users_data_reactive()$valid_groups,
+                           EXCLUDED_GROUPS
+                         )
                          groups_sorted <- sort(setdiff(groups, "Admin"))
                          if ("Admin" %in% groups) groups_sorted <- c(groups_sorted, "Admin")
                          c("", groups_sorted)
@@ -220,7 +233,8 @@ server <- function(input, output, session) {
                      )
                    ),
                    div(class = "next-button-container",
-                       actionButton("next_to_email", "Next", class = "btn btn-primary btn-block")
+                       actionButton("next_to_email", "Next",
+                                    style = "background-color: #185FA5; color: white; border: none; border-radius: 8px; font-weight: 500; width: 100%;")
                    )
                  )
                )
@@ -247,7 +261,8 @@ server <- function(input, output, session) {
                      style = "width: 400px; background-color: #e6f2ff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
                      selectInput("email", "Select Your Email", choices = c("", emails), width = "100%"),
                      div(style = "margin-top: 15px;",
-                         actionButton("send_otc", "Send One-Time Code", class = "btn btn-success btn-block"),
+                         actionButton("send_otc", "Send One-Time Code",
+                                      style = "background-color: #185FA5; color: white; border: none; border-radius: 8px; font-weight: 500; width: 100%;"),
                          tags$br(),
                          actionButton("back", "Back", class = "btn btn-secondary btn-block"),
                          tags$p(
@@ -271,9 +286,10 @@ server <- function(input, output, session) {
                    checkboxInput("remember_me", "Remember me for 30 days", value = FALSE)
                  },
                  div(style = "margin-top: 15px;",
-                     actionButton("verify_otc", "Verify", class = "btn btn-success btn-block"),
-                     tags$br(),
-                     actionButton("resend_otc", "Resend Code", class = "btn btn-warning btn-block"),
+                     actionButton("verify_otc", "Verify",
+                                  style = "background-color: #185FA5; color: white; border: none; border-radius: 8px; font-weight: 500; width: 100%; margin-bottom: 10px;"),
+                     actionButton("resend_otc", "Resend Code",
+                                  style = "background-color: #185FA5; color: white; border: none; border-radius: 8px; font-weight: 500; width: 100%; margin-bottom: 10px;"),
                      tags$br(),
                      actionButton("back", "Back", class = "btn btn-secondary btn-block")
                  )
@@ -343,12 +359,13 @@ server <- function(input, output, session) {
               },
               
               # Continue button for all users
-              actionButton("continue_to_plot", "Continue", class = "btn btn-primary")
+              actionButton("continue_to_plot", "Continue",
+                           style = "background-color: #185FA5; color: white; border: none; border-radius: 8px; font-weight: 500;")
             )
           )
         )
       } else if (values$app_stage == "plot") {
-        module2_header_side_body()
+        module2_header_side_body(is_genome_tech = isTRUE(startsWith(values$authenticated_group, "GenomeTechnologies")))
       }
     }
   })
@@ -373,7 +390,6 @@ server <- function(input, output, session) {
   })
   ####################################################################################
   # ---- Send One-Time Code to User ----
-
   send_code_to_user <- function(email) {
     issue_one_time_code(values$selected_group, email)
   }
@@ -384,88 +400,80 @@ server <- function(input, output, session) {
   ####################################################################################
   #DEV MODE CODE ONLY. IT MUST BE COMMENTED OUT WHEN SCRIPT IS IN PRODUCTION MODE.
   # —— DEV MODE: show debug code only ——————————————————————
-   # observeEvent(input$send_otc, {
-   #   req(input$email)
-   #   if (input$email == "") {
-   #     showNotification("Please select an email.", type = "error", duration = 5)
-   #     return()
-   #   }
-   #   values$selected_email <- input$email
-   # 
-   #   # generate + store
-   #   code <- sprintf("%06d", sample(0:999999, 1))
-   #   otc_storage[[input$email]] <- list(code = code, timestamp = Sys.time())
-   # 
-   #   # *** LOG DEV SEND ***
-   #   write_log(
-   #     log_Dashboard,
-   #     "OTC_DEV_SENT",
-   #     paste0("Mode=DEV, Email='", input$email, "', Code='", code, "'")
-   #   )
-   # 
-   #   # debug popup only
-   #   showNotification(paste("DEBUG CODE:", code), type = "message", duration = 15)
-   #   values$stage <- "verify"
-   # })
-   # 
-   # observeEvent(input$send_otc, {
-   #   req(input$email)
-   #   if (input$email == "") {
-   #     showNotification("Please select an email.", type = "error", duration = 5)
-   #     return()
-   #   }
-   #   values$selected_email <- input$email
-   #   code <- sprintf("%06d", sample(0:999999, 1))
-   #   otc_storage[[input$email]] <- list(code = code, timestamp = Sys.time())
-   #   showNotification(paste("DEBUG CODE:", code), type = "message", duration = 15) # For testing only
-   #   values$stage <- "verify"
-   # })
+  observeEvent(input$send_otc, {
+    req(input$email)
+    if (input$email == "") {
+      showNotification("Please select an email.", type = "error", duration = 5)
+      return()
+    }
+    values$selected_email <- input$email
+
+    # generate + store
+    code <- sprintf("%06d", sample(0:999999, 1))
+    otc_storage[[input$email]] <- list(code = code, timestamp = Sys.time())
+
+    # *** LOG DEV SEND ***
+    write_log(
+      log_Dashboard,
+      "OTC_DEV_SENT",
+      paste0("Mode=DEV, Email='", input$email, "'")
+    )
+
+    # debug popup only
+    showNotification(paste("DEBUG CODE:", code), type = "message", duration = 15)
+    values$stage <- "verify"
+  })
+
+  observeEvent(input$send_otc, {
+    req(input$email)
+    if (input$email == "") {
+      showNotification("Please select an email.", type = "error", duration = 5)
+      return()
+    }
+    values$selected_email <- input$email
+    code <- sprintf("%06d", sample(0:999999, 1))
+    otc_storage[[input$email]] <- list(code = code, timestamp = Sys.time())
+    showNotification(paste("DEBUG CODE:", code), type = "message", duration = 15) # For testing only
+    values$stage <- "verify"
+  })
   ####################################################################################
   ####################################################################################
   ####################################################################################
   ####################################################################################
   #PRODUCTION CODE. IT MUST BE UNCOMMENTED BEFORE USE INSIDE CTGENOMTECH03. IT MUST BE COMMENTED OUT WHEN USED IN DEV MODE
   # —— PRODUCTION MODE: actually email the code —————————————————
-   observeEvent(input$send_otc, {
-     req(input$email)
-     values$selected_email <- input$email
-
-     if (!mailer_available()) {
-       showNotification("Mailer not available.", type = "error")
-       return()
-     }
-
-     # *** LOG PRODUCTION SEND ATTEMPT ***
-     write_log(
-       log_Dashboard,
-       "OTC_PROD_SEND_ATTEMPT",
-       paste0("Mode=PROD, sending to Email='", input$email, "'")
-     )
-
-     if (issue_one_time_code(values$selected_group, input$email)) {
-       showNotification("One-time code sent!", type = "message", duration = 10)
-
-       # *** LOG PRODUCTION SEND SUCCESS ***
-       write_log(
-         log_Dashboard,
-         "OTC_PROD_SENT",
-         paste0("Mode=PROD, Email='", input$email, "'")
-       )
-
-       values$stage <- "verify"
-     } else {
-       showNotification("Failed to send code. Contact gtdrylab@jax.org", type = "error", duration = 15)
-
-       # *** LOG PRODUCTION SEND FAILURE ***
-       write_log(
-         log_Dashboard,
-         "OTC_PROD_SEND_FAILED",
-         paste0("Mode=PROD, Email='", input$email, "'")
-       )
-     }
-   })
-
-
+  # observeEvent(input$send_otc, {
+  #   req(input$email)
+  #   values$selected_email <- input$email
+  #   if (!mailer_available()) {
+  #     showNotification("Mailer not available.", type = "error")
+  #     return()
+  #   }
+  #   # *** LOG PRODUCTION SEND ATTEMPT ***
+  #   write_log(
+  #     log_Dashboard,
+  #     "OTC_PROD_SEND_ATTEMPT",
+  #     paste0("Mode=PROD, sending to Email='", input$email, "'")
+  #   )
+  #   if (issue_one_time_code(values$selected_group, input$email)) {
+  #     showNotification("One-time code sent!", type = "message", duration = 10)
+  #     # *** LOG PRODUCTION SEND SUCCESS ***
+  #     write_log(
+  #       log_Dashboard,
+  #       "OTC_PROD_SENT",
+  #       paste0("Mode=PROD, Email='", input$email, "'")
+  #     )
+  #     values$stage <- "verify"
+  #   } else {
+  #     showNotification("Failed to send code. Contact gtdrylab@jax.org", type = "error", duration = 15)
+  #     # *** LOG PRODUCTION SEND FAILURE ***
+  #     write_log(
+  #       log_Dashboard,
+  #       "OTC_PROD_SEND_FAILED",
+  #       paste0("Mode=PROD, Email='", input$email, "'")
+  #     )
+  #   }
+  # })
   ####################################################################################
   
   # —— PRODUCTION RESEND observer —————————————————————————
@@ -530,7 +538,7 @@ server <- function(input, output, session) {
       values$authenticated_group <- values$selected_group
       values$app_stage <- "message"
       
-      # JS sessionStorage for current session
+      # JS sessionStorage for current tab session only
       runjs("sessionStorage.setItem('authenticated', 'true');")
       runjs(paste0("sessionStorage.setItem('selected_group', '", values$selected_group, "');"))
       runjs(paste0("sessionStorage.setItem('selected_email', '", values$selected_email, "');"))
@@ -538,10 +546,10 @@ server <- function(input, output, session) {
       # Store user session to localStorage for 30 days — exclude Admin group
       if (isTRUE(input$remember_me) && values$selected_group != "Admin") {
         runjs(sprintf("
-        localStorage.setItem('authenticated', 'true');
-        localStorage.setItem('selected_group', '%s');
-        localStorage.setItem('selected_email', '%s');
-        localStorage.setItem('auth_timestamp', '%s');",
+          localStorage.setItem('authenticated', 'true');
+          localStorage.setItem('selected_group', '%s');
+          localStorage.setItem('selected_email', '%s');
+          localStorage.setItem('auth_timestamp', '%s');",
                       values$selected_group,
                       values$selected_email,
                       format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
@@ -578,23 +586,32 @@ server <- function(input, output, session) {
     values$authenticated_group
   })
   ####################################################################################
-  # ---- Conditional Module Launch for Authenticated Users and then pass the select group to the module2_Server ----
-  observe({
-    if (values$authenticated && values$app_stage == "plot") {
-      #module2_Server("Module2", selectedGroup = selectedGroup(), authenticated_group = authenticatedGroup()) 
-      #module2_Server("Module2", selectedGroup = selectedGroup, authenticated_group = authenticatedGroup)
-      module2_Server(
-        "Module2",
-        selectedGroup = selectedGroup,
-        authenticated_group = authenticatedGroup,
-        dashboard_ready = dashboard_ready  
-      )
-      
-    }
+  # ---- Reactive function to get the logged-in user's own email, usable in module2_Server ----
+  authenticatedEmail <- reactive({
+    values$selected_email
   })
+  ####################################################################################
+  # ---- Launch module2_Server exactly once ----
+  # moduleServer() must only ever be invoked once per id: calling it again (e.g. from
+  # an observe() re-firing on every values$authenticated/app_stage change, as this used
+  # to do) doesn't replace the previous set of observers under "Module2" — it stacks a
+  # second, independent copy alongside the first, which is never torn down. A logout
+  # then re-login in the same tab (no page reload) would re-fire that observe() and
+  # leave a stale observer instance (e.g. the Flowcell-visibility one in
+  # dashboardServer.R, each with its own shinyjs::delay(500, ...)) racing the new one —
+  # this was the source of the GT Flowcell tab intermittently appearing for a non-GT
+  # login. module2_Server's own internals already gate everything behind
+  # req(authenticated_group()) etc., so it's safe to call unconditionally up front.
+  module2_Server(
+    "Module2",
+    selectedGroup       = selectedGroup,
+    authenticated_group = authenticatedGroup,
+    authenticated_email = authenticatedEmail,
+    dashboard_ready     = dashboard_ready,
+    main_tab            = reactive(input$main_tab)
+  )
   ####################################################################################
   # ---- Always Load Static Module ----
   module1_Server("Module1")
   ####################################################################################
 }
-
