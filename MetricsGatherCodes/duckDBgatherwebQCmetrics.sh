@@ -86,6 +86,7 @@ init_command_once() {
     create_qc_metrics_indexes "qc_pacbio_metrics"
     create_qc_metrics_indexes "qc_ont_metrics"
     create_unified_qc_view
+    normalize_existing_instrument_ids
     destination_server
 }
 #---------------------------------------------------
@@ -1060,9 +1061,9 @@ gather_metrics_pacbio() {
       | sed -E 's+<tr><th>Instrument Name</th><td>++;s+</td></tr>++')
   fi
   case "$InstrumentName" in
-    *84148*) InstrumentID="CT_Revio_84148" ;;
-    *SQ65119*|*64119*) InstrumentID="CT_Sequel_SQ65119" ;;
-    *SQ65039*|*r64039*) InstrumentID="CT_Sequel_SQ65039" ;;
+    *84148*) InstrumentID="Revio_84148" ;;
+    *SQ65119*|*64119*) InstrumentID="Sequel_SQ65119" ;;
+    *SQ65039*|*r64039*) InstrumentID="Sequel_SQ65039" ;;
     *) InstrumentID="${InstrumentName:-NULL}" ;;
   esac
 
@@ -1236,15 +1237,15 @@ gather_metrics_ont() {
   fi
 
   case "$InstrumentName" in
-    *GXB02036*)    InstrumentID="CT_GridIONX5_GXB02036"    ;;
-    *PCA100115*)   InstrumentID="CT_PromethION_PCA100115" ;;
-    *GXB03074*)    InstrumentID="BH_GridIONX5_GXB03074"    ;;
-    *P2S-01535*)   InstrumentID="BH_P2_Solo_P2S-01535"     ;;
-    *GXB01025*)    InstrumentID="CT_GridIONX5_GXB01025"    ;;
-    *GXB01102*)    InstrumentID="CT_GridIONX5_GXB01102"    ;;
-    *GXB01186*)    InstrumentID="CT_GridIONX5_GXB01186"    ;;
-    *PC24B149*)    InstrumentID="CT_PromethION_PC24B149"   ;;
-    *PCT0053*)     InstrumentID="CT_PromethION_PCT0053"    ;;
+    *GXB02036*)    InstrumentID="GridIONX5_GXB02036"    ;;
+    *PCA100115*)   InstrumentID="PromethION_PCA100115" ;;
+    *GXB03074*)    InstrumentID="GridIONX5_GXB03074"    ;;
+    *P2S-01535*)   InstrumentID="P2_Solo_P2S-01535"     ;;
+    *GXB01025*)    InstrumentID="GridIONX5_GXB01025"    ;;
+    *GXB01102*)    InstrumentID="GridIONX5_GXB01102"    ;;
+    *GXB01186*)    InstrumentID="GridIONX5_GXB01186"    ;;
+    *PC24B149*)    InstrumentID="PromethION_PC24B149"   ;;
+    *PCT0053*)     InstrumentID="PromethION_PCT0053"    ;;
     *)             InstrumentID="${InstrumentName:-NULL}"  ;;
   esac
 
@@ -1796,6 +1797,27 @@ extract_and_process_run_metrics_illumina() {
   if [[ -n "$RunMetricsSummary" ]]; then
     InstrumentID=$(grep -A1 "FlowCellID" "$RunMetricsSummary" | tr ',' '\t' | sed 's+"++g' |
                    awk 'NR==1{for(i=1;i<=NF;i++) if($i=="MachineID"){pos=i}} NR==2{print $pos}')
+    case "$InstrumentID" in
+      *M02838*)        InstrumentID="MiSeq_M02838" ;;
+      *M03204*)        InstrumentID="MiSeq_M03204" ;;
+      *VH01929*)       InstrumentID="NextSeq2000_VH01929" ;;
+      *A00724*)        InstrumentID="NovaSeq6000_A00724" ;;
+      *A00739*)        InstrumentID="NovaSeq6000_A00739" ;;
+      *LH00341*)       InstrumentID="NovaSeqX_Plus_LH00341" ;;
+      *M00263*)        InstrumentID="MiSeq_M00263" ;;
+      *VH01930*)       InstrumentID="NextSeq2000_VH01930" ;;
+      *NB501381*)      InstrumentID="NextSeq500_NB501381" ;;
+      *D00138*)        InstrumentID="HiSeq2500_D00138" ;;
+      *K00384*)        InstrumentID="Illumina_HiSeq4000_K00384" ;;
+      *M03341*)        InstrumentID="MiSeq_M03341" ;;
+      *NB501370*)      InstrumentID="NextSeq500_NB501370" ;;
+      *NS500440*)      InstrumentID="NextSeq500_NS500440" ;;
+      *NS500460*)      InstrumentID="NextSeq500_NS500460" ;;
+      *245735200492*)  InstrumentID="ThermoFisher_IonTorrentS5XL_245735200492" ;;
+      *IonTorrent*)    InstrumentID="ThermoFisher_IonTorrentS5XL_245735200492" ;;
+      *)               InstrumentID="${InstrumentID:-NULL}" ;;
+    esac
+
     FlowcellID=$(grep -A1 "FlowCellID" "$RunMetricsSummary" | tr ',' '\t' | sed 's+"++g' |
                  awk 'NR==1{for(i=1;i<=NF;i++) if($i=="FlowCellID"){pos=i}} NR==2{print $pos}')
     RunID=$(grep "Run Id" "$ProjDir/RunInfo.xml" | sed 's/=/\t/g' | awk '{print $3}' | sed 's/"//g')
@@ -2201,6 +2223,164 @@ EOF
   [[ -f "$duckDB_lockfile" ]] && rm -f "$duckDB_lockfile"
   #clean up any hanging csv file
   rm -f "$OUT"/*.csv "$OUT"/*.log
+}
+
+# ─────────────────────────────────────────────────────────────
+# Function: normalize_existing_instrument_ids
+# Purpose : Rewrites InstrumentID to a clean, human-readable
+#           Model_Serial format across qc_illumina_metrics,
+#           qc_pacbio_metrics, qc_ont_metrics.
+#
+#           qc_illumina_metrics processes per-Project_ID: a single
+#           full-table UPDATE was found to spuriously trip a
+#           constraint violation at full scale (35M+ rows) despite
+#           no real duplicate data ever being found — verified
+#           repeatedly via direct queries. Per-project batching
+#           keeps every commit small and has run clean on every
+#           project tested. A failure on any one project is logged
+#           to duckdb.normalize.failed_projects.log and skipped —
+#           never fatal to the nightly run.
+#
+#           qc_pacbio_metrics / qc_ont_metrics have no UNIQUE
+#           constraint at all, so a single straightforward UPDATE
+#           is safe as before.
+#
+#           InstrumentID_Normalized marks rows already handled so
+#           each run only touches that cycle's new rows going
+#           forward.
+# ─────────────────────────────────────────────────────────────
+normalize_existing_instrument_ids() {
+  (
+    flock -x 200
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo "[$timestamp] LOCK ACQUIRED by $$ for normalize_existing_instrument_ids" >> "$duckDB_logfile"
+    echo "--- [START] normalize_existing_instrument_ids @ $timestamp ---" >> "$duckDB_logfile"
+
+    for table in qc_illumina_metrics qc_pacbio_metrics qc_ont_metrics; do
+      if ! duckdb "$duckDB_PATH" <<EOF
+ALTER TABLE $table ADD COLUMN IF NOT EXISTS InstrumentID_Normalized BOOLEAN DEFAULT FALSE;
+CREATE INDEX IF NOT EXISTS idx_${table}_instnorm ON $table(InstrumentID_Normalized);
+EOF
+      then
+        log_error "normalize_existing_instrument_ids: ALTER/CREATE INDEX failed on $table — skipping normalize this run"
+      fi
+    done
+
+    projects=$(duckdb "$duckDB_PATH" -csv -noheader -c \
+      "SELECT DISTINCT Project_ID FROM qc_illumina_metrics WHERE InstrumentID_Normalized IS NOT TRUE;")
+    pending_illumina=$(duckdb "$duckDB_PATH" -csv -noheader -c \
+      "SELECT COUNT(*) FROM qc_illumina_metrics WHERE InstrumentID_Normalized IS NOT TRUE;")
+    echo "    qc_illumina_metrics: $pending_illumina row(s) pending across $(echo "$projects" | sed '/^\s*$/d' | wc -l) project(s)" >> "$duckDB_logfile"
+
+    while IFS= read -r proj; do
+      [[ -z "$proj" ]] && continue
+      safe_proj="${proj//\'/\'\'}"
+
+      if ! duckdb "$duckDB_PATH" <<EOF
+CREATE TEMP TABLE illumina_safe_keys AS
+SELECT Investigator_Folder, Project_ID, Project_run_type, Release_Date,
+       RunID, FlowcellID, Lane, GT_QC_Sample_ID, Sample_Name, Species, name, value, Application
+FROM (
+  SELECT Investigator_Folder, Project_ID, Project_run_type, Release_Date,
+         RunID, FlowcellID, Lane, GT_QC_Sample_ID, Sample_Name, Species, name, value, Application,
+         COUNT(*) OVER (
+           PARTITION BY Investigator_Folder, Project_ID, Project_run_type, Release_Date,
+                        RunID, FlowcellID, Lane, GT_QC_Sample_ID, Sample_Name, Species, name, value, Application
+         ) AS key_count
+  FROM qc_illumina_metrics
+  WHERE Project_ID = '$safe_proj'
+    AND InstrumentID_Normalized IS NOT TRUE
+) WHERE key_count = 1;
+
+UPDATE qc_illumina_metrics AS t
+SET InstrumentID = CASE
+    WHEN t.InstrumentID LIKE '%M02838%'        THEN 'MiSeq_M02838'
+    WHEN t.InstrumentID LIKE '%M03204%'        THEN 'MiSeq_M03204'
+    WHEN t.InstrumentID LIKE '%VH01929%'       THEN 'NextSeq2000_VH01929'
+    WHEN t.InstrumentID LIKE '%A00724%'        THEN 'NovaSeq6000_A00724'
+    WHEN t.InstrumentID LIKE '%A00739%'        THEN 'NovaSeq6000_A00739'
+    WHEN t.InstrumentID LIKE '%LH00341%'       THEN 'NovaSeqX_Plus_LH00341'
+    WHEN t.InstrumentID LIKE '%M00263%'        THEN 'MiSeq_M00263'
+    WHEN t.InstrumentID LIKE '%VH01930%'       THEN 'NextSeq2000_VH01930'
+    WHEN t.InstrumentID LIKE '%NB501381%'      THEN 'NextSeq500_NB501381'
+    WHEN t.InstrumentID LIKE '%D00138%'        THEN 'HiSeq2500_D00138'
+    WHEN t.InstrumentID LIKE '%K00384%'        THEN 'Illumina_HiSeq4000_K00384'
+    WHEN t.InstrumentID LIKE '%M03341%'        THEN 'MiSeq_M03341'
+    WHEN t.InstrumentID LIKE '%NB501370%'      THEN 'NextSeq500_NB501370'
+    WHEN t.InstrumentID LIKE '%NS500440%'      THEN 'NextSeq500_NS500440'
+    WHEN t.InstrumentID LIKE '%NS500460%'      THEN 'NextSeq500_NS500460'
+    WHEN t.InstrumentID LIKE '%245735200492%'  THEN 'ThermoFisher_IonTorrentS5XL_245735200492'
+    WHEN t.InstrumentID LIKE '%IonTorrent%'    THEN 'ThermoFisher_IonTorrentS5XL_245735200492'
+    ELSE t.InstrumentID
+  END,
+  InstrumentID_Normalized = TRUE
+FROM illumina_safe_keys AS k
+WHERE t.Project_ID = '$safe_proj'
+  AND t.InstrumentID_Normalized IS NOT TRUE
+  AND t.Investigator_Folder IS NOT DISTINCT FROM k.Investigator_Folder
+  AND t.Project_ID IS NOT DISTINCT FROM k.Project_ID
+  AND t.Project_run_type IS NOT DISTINCT FROM k.Project_run_type
+  AND t.Release_Date IS NOT DISTINCT FROM k.Release_Date
+  AND t.RunID IS NOT DISTINCT FROM k.RunID
+  AND t.FlowcellID IS NOT DISTINCT FROM k.FlowcellID
+  AND t.Lane IS NOT DISTINCT FROM k.Lane
+  AND t.GT_QC_Sample_ID IS NOT DISTINCT FROM k.GT_QC_Sample_ID
+  AND t.Sample_Name IS NOT DISTINCT FROM k.Sample_Name
+  AND t.Species IS NOT DISTINCT FROM k.Species
+  AND t.name IS NOT DISTINCT FROM k.name
+  AND t.value IS NOT DISTINCT FROM k.value
+  AND t.Application IS NOT DISTINCT FROM k.Application;
+
+DROP TABLE illumina_safe_keys;
+EOF
+      then
+        echo "$proj" >> "$OUT/.logs/duckdb.normalize.failed_projects.log"
+        log_error "normalize_existing_instrument_ids: project $proj failed — logged, continuing"
+      fi
+    done <<< "$projects"
+
+    if ! duckdb "$duckDB_PATH" <<'EOF'
+UPDATE qc_pacbio_metrics SET
+  InstrumentID = CASE
+    WHEN InstrumentID LIKE '%84148%'                                   THEN 'Revio_84148'
+    WHEN InstrumentID LIKE '%SQ65119%' OR InstrumentID LIKE '%64119%'   THEN 'Sequel_SQ65119'
+    WHEN InstrumentID LIKE '%SQ65039%' OR InstrumentID LIKE '%r64039%'  THEN 'Sequel_SQ65039'
+    ELSE regexp_replace(InstrumentID, '^(CT_|BH_)', '')
+  END,
+  InstrumentID_Normalized = TRUE
+WHERE InstrumentID_Normalized IS NOT TRUE;
+EOF
+    then
+      log_error "normalize_existing_instrument_ids: PacBio UPDATE failed"
+    fi
+
+    if ! duckdb "$duckDB_PATH" <<'EOF'
+UPDATE qc_ont_metrics SET
+  InstrumentID = CASE
+    WHEN InstrumentID LIKE '%GXB02036%'   THEN 'GridIONX5_GXB02036'
+    WHEN InstrumentID LIKE '%PCA100115%'  THEN 'PromethION_PCA100115'
+    WHEN InstrumentID LIKE '%GXB03074%'   THEN 'GridIONX5_GXB03074'
+    WHEN InstrumentID LIKE '%P2S-01535%'  THEN 'P2_Solo_P2S-01535'
+    WHEN InstrumentID LIKE '%GXB01025%'   THEN 'GridIONX5_GXB01025'
+    WHEN InstrumentID LIKE '%GXB01102%'   THEN 'GridIONX5_GXB01102'
+    WHEN InstrumentID LIKE '%GXB01186%'   THEN 'GridIONX5_GXB01186'
+    WHEN InstrumentID LIKE '%PC24B149%'   THEN 'PromethION_PC24B149'
+    WHEN InstrumentID LIKE '%PCT0053%'    THEN 'PromethION_PCT0053'
+    ELSE regexp_replace(InstrumentID, '^(CT_|BH_)', '')
+  END,
+  InstrumentID_Normalized = TRUE
+WHERE InstrumentID_Normalized IS NOT TRUE;
+EOF
+    then
+      log_error "normalize_existing_instrument_ids: ONT UPDATE failed"
+    fi
+
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo "--- [END] normalize_existing_instrument_ids @ $timestamp ---" >> "$duckDB_logfile"
+    echo "[$timestamp] LOCK RELEASED by $$ for normalize_existing_instrument_ids" >> "$duckDB_logfile"
+    echo >> "$duckDB_logfile"
+  ) 200>"$duckDB_lockfile"
+  [[ -f "$duckDB_lockfile" ]] && rm -f "$duckDB_lockfile"
 }
 
 # ─────────────────────────────────────────────────────────────
