@@ -29,7 +29,46 @@ if (!dir.exists(log_dir)) {
 
 # -------- Paths to JSON and duckDB --------
 json_path <- file.path(base_path, ".usersProfile.json")
-users_data <- jsonlite::fromJSON(readLines(json_path, warn = FALSE))
+
+# -------- Locked, atomic access to the user/group profile --------
+# Every reader/writer of json_path goes through these so concurrent Shiny
+# sessions can't corrupt the file or silently clobber each other's edits.
+read_user_profile <- function(path) {
+  lock <- filelock::lock(paste0(path, ".lock"), exclusive = FALSE, timeout = 5000)
+  if (is.null(lock)) stop("Could not acquire read lock on user profile (timed out).")
+  on.exit(filelock::unlock(lock))
+  jsonlite::fromJSON(path)
+}
+
+write_user_profile <- function(profile, path) {
+  lock <- filelock::lock(paste0(path, ".lock"), exclusive = TRUE, timeout = 5000)
+  if (is.null(lock)) stop("Could not acquire write lock on user profile (timed out).")
+  on.exit(filelock::unlock(lock))
+
+  tmp_path <- paste0(path, ".tmp", Sys.getpid())
+  jsonlite::write_json(profile, tmp_path, pretty = TRUE)
+  file.rename(tmp_path, path)
+}
+
+# Wraps a full read-modify-write cycle in a single exclusive lock, so two
+# concurrent editors (e.g. an admin and a self-service user) can't each read
+# a stale profile and have the second write silently clobber the first's change.
+# `mutate_fn(profile)` must return the updated profile.
+update_user_profile <- function(path, mutate_fn) {
+  lock <- filelock::lock(paste0(path, ".lock"), exclusive = TRUE, timeout = 5000)
+  if (is.null(lock)) stop("Could not acquire write lock on user profile (timed out).")
+  on.exit(filelock::unlock(lock))
+
+  profile <- jsonlite::fromJSON(path)
+  profile <- mutate_fn(profile)
+
+  tmp_path <- paste0(path, ".tmp", Sys.getpid())
+  jsonlite::write_json(profile, tmp_path, pretty = TRUE)
+  file.rename(tmp_path, path)
+  invisible(profile)
+}
+
+users_data <- read_user_profile(json_path)
 
 #Updated DuckDB path
 path_to_duckdb <- file.path(dir_InputFile, "duckDB/GTdashboardMetrics.duckdb")
@@ -42,6 +81,9 @@ log_Wiki <- file.path(base_path, "log/wikiTracker_log.csv")
 
 MULTIQC_DIR <- file.path(dir_InputFile, "multiqc_reports")
 addResourcePath("multiqc_reports", MULTIQC_DIR)
+
+# -------- Groups hidden from user-facing group pickers (login screen, group email updates) --------
+EXCLUDED_GROUPS <- c("NULL", "jax", "NA", "colorado_university", "mdibl", "External (GT use only)")
 
 # -------- Log Function --------
 write_log <- function(log_path, event, details) {
@@ -81,19 +123,22 @@ log_throttle <- function(log_path, file_name, event, details, interval_secs = 30
 }
 
 # -------- Connect to duckDB --------
+# `con` is a connection pool, not a single DBI connection, so concurrent sessions/queries
+# each check out their own connection instead of sharing one handle that a "refresh data"
+# action elsewhere could disconnect out from under an in-flight query.
 write_log(log_Dashboard, "DB_CONNECT_START", paste0("Connecting to DuckDB at ", path_to_duckdb))
-con <- DBI::dbConnect(duckdb::duckdb(), dbdir = path_to_duckdb, read_only = TRUE)
-write_log(log_Dashboard, "DB_CONNECT_OK", "Primary DuckDB connection established")
+con <- pool::dbPool(duckdb::duckdb(), dbdir = path_to_duckdb, read_only = TRUE)
+write_log(log_Dashboard, "DB_CONNECT_OK", "Primary DuckDB connection pool established")
 
 onStop(function() {
-  write_log(log_Dashboard, "DB_DISCONNECT", "Shutting down primary DuckDB connection")
-  DBI::dbDisconnect(con, shutdown = TRUE)
+  write_log(log_Dashboard, "DB_DISCONNECT", "Closing primary DuckDB connection pool")
+  pool::poolClose(con)
 })
 # ─────────────────────────────────────────────────────────────
 # Helper: Auto crawl new labs and update the json group information. Function is called in server.R module
 # ─────────────────────────────────────────────────────────────
 sync_json_with_duckdb_labs <- function(con, json_path) {
-  users_data <- jsonlite::fromJSON(readLines(json_path, warn = FALSE))
+  users_data <- read_user_profile(json_path)
   labs_from_db <- tryCatch({
     DBI::dbGetQuery(con, "
       SELECT DISTINCT Investigator_Folder
@@ -112,8 +157,7 @@ sync_json_with_duckdb_labs <- function(con, json_path) {
     for (lab in new_labs) {
       users_data[[lab]] <- character(0)  # or insert a default email if needed
     }
-    jsonlite::write_json(users_data, json_path, pretty = TRUE, auto_unbox = TRUE)
-  } else {
+    write_user_profile(users_data, json_path)
   }
 }
 
@@ -283,8 +327,13 @@ get_distinct_years <- function() {
     integer(0)
   })
   
-  sort(years, decreasing = TRUE)
+  years <- sort(years, decreasing = TRUE)
+  log_throttle(log_SeqMet, "get_distinct_years", "YEAR_DROPDOWN_OK",
+               paste("Loaded", length(years), "distinct years"))
+  years
 }
+
+
 # ─────────────────────────────────────────────────────────────
 # Purpose:
 # Retrieves a list of distinct time periods from the 'sequencing_metrics' DuckDB table
@@ -366,7 +415,10 @@ get_distinct_platforms <- function() {
     character(0)
   })
   
-  sort(trimws(platforms))
+  platforms <- sort(trimws(platforms))
+  log_throttle(log_SeqMet, "get_distinct_platforms", "PLATFORM_DROPDOWN_OK",
+               paste("Loaded platforms:", paste(platforms, collapse = ", ")))
+  platforms
 }
 # ─────────────────────────────────────────────────────────────
 # Purpose:
@@ -402,7 +454,10 @@ get_distinct_applications <- function(platforms = NULL, years = NULL) {
     character(0)
   })
   
-  sort(trimws(apps))
+  apps <- sort(trimws(apps))
+  log_throttle(log_SeqMet, "get_distinct_applications", "APPLICATION_DROPDOWN_OK",
+               paste("Loaded", length(apps), "applications"))
+  apps
 }
 # ─────────────────────────────────────────────────────────────
 # Purpose:
@@ -536,7 +591,7 @@ get_distinct_labs <- function(platforms = NULL, years = NULL, applications = NUL
   }
   
   df <- DBI::dbGetQuery(con, query)
-  sort(unique(df$groupFolder))
+  sort(unique(stringr::str_trim(df$groupFolder)))
 }
 # ─────────────────────────────────────────────────────────────
 # Purpose:
@@ -619,6 +674,9 @@ get_filtered_seq_metrics <- function(
       .con = con
     )
   )
+  log_throttle(log_SeqMet, "get_filtered_seq_metrics", "SEQ_METRICS_QUERY_OK",
+               paste0("Returned ", nrow(df), " rows | years:", paste(years, collapse=","),
+                      " | platforms:", paste(platforms, collapse=",")))
   
   # Early return if no data
   if (nrow(df) == 0 || any(c("Reads", "Bases", "Bytes") %in% colnames(df) == FALSE)) {
@@ -680,18 +738,106 @@ get_filtered_seq_metrics <- function(
 # ─────────────────────────────────────────────────────────────
 # -------- Log Reader Utility --------
 read_log_data <- function(log_file) {
-  req(file.exists(log_file))
-  log_throttle(log_Dashboard, basename(log_file), "[LOG READ]", paste("Reading log:", basename(log_file)))
+  if (!file.exists(log_file)) {
+    return(data.frame(Date = character(), Time = character(),
+                      Event = character(), Details = character(),
+                      datetime = as.POSIXct(character()),
+                      stringsAsFactors = FALSE))
+  }
+  
+  log_throttle(log_Dashboard, basename(log_file), "[LOG READ]",
+               paste("Reading log:", basename(log_file)))
+  
   df <- tryCatch({
-    read.csv(log_file, stringsAsFactors = FALSE)
+    # Peek at first two lines to detect format
+    first_lines <- readLines(log_file, n = 2, warn = FALSE)
+    header_line <- first_lines[1]
+    data_line   <- if (length(first_lines) >= 2) first_lines[2] else ""
+    
+    # Detect wiki format — header exists but Date column contains Apache timestamp
+    # e.g. Date,Event,Details with "14/Apr/2026:17:49:03 -0400" in data rows
+    is_wiki_format <- grepl("^\\d{2}/[A-Za-z]{3}/\\d{4}:", data_line)
+    
+    if (is_wiki_format) {
+      # Wiki log: comma-separated, has header, Date column is Apache timestamp
+      # Only 3 columns: Date (timestamp), Event, Details
+      raw <- read.csv(log_file, stringsAsFactors = FALSE,
+                      header = TRUE, quote = "\"", fill = TRUE)
+      
+      # Drop any accidentally persisted columns
+      raw <- raw[, !names(raw) %in% c("datetime", "Time", "x1", "x2"), drop = FALSE]
+      
+      # Parse Apache timestamp from Date column
+      raw$datetime <- as.POSIXct(raw$Date,
+                                 format = "%d/%b/%Y:%H:%M:%S %z")
+      
+      # Split into proper Date and Time columns
+      raw$Time <- format(raw$datetime, "%H:%M:%S")
+      raw$Date <- format(raw$datetime, "%Y-%m-%d")
+      
+      # Ensure Details column exists
+      if (!"Details" %in% names(raw)) raw$Details <- NA_character_
+      
+      # Keep only standard columns
+      raw <- raw[, c("Date", "Time", "Event", "Details", "datetime")]
+      
+    } else {
+      # Standard log format — comma-separated, Date and Time are separate columns
+      raw <- read.csv(log_file, stringsAsFactors = FALSE)
+      
+      # Drop datetime column if accidentally persisted
+      raw <- raw[, !names(raw) %in% "datetime", drop = FALSE]
+      
+      # Detect missing header — re-read without header if needed
+      expected_cols <- c("Date", "Time", "Event", "Details")
+      if (!all(expected_cols %in% names(raw))) {
+        raw <- read.csv(log_file, stringsAsFactors = FALSE,
+                        header = FALSE,
+                        col.names = c("Date", "Time", "Event", "Details"),
+                        fill = TRUE)
+      }
+      
+      # Drop datetime again in case it snuck back in
+      raw <- raw[, !names(raw) %in% "datetime", drop = FALSE]
+      
+      # Remove duplicate header rows and NA dates
+      raw <- raw[!is.na(raw$Date) & raw$Date != "Date", , drop = FALSE]
+      
+      if (nrow(raw) == 0) {
+        return(data.frame(Date = character(), Time = character(),
+                          Event = character(), Details = character(),
+                          datetime = as.POSIXct(character()),
+                          stringsAsFactors = FALSE))
+      }
+      
+      # Parse datetime
+      raw$datetime <- as.POSIXct(paste(raw$Date, raw$Time),
+                                 format = "%Y-%m-%d %H:%M:%S")
+    }
+    
+    # Remove rows where datetime failed to parse
+    raw <- raw[!is.na(raw$datetime), ]
+    
+    if (nrow(raw) == 0) {
+      return(data.frame(Date = character(), Time = character(),
+                        Event = character(), Details = character(),
+                        datetime = as.POSIXct(character()),
+                        stringsAsFactors = FALSE))
+    }
+    
+    # Sort newest first
+    raw[order(raw$datetime, decreasing = TRUE), ]
+    
   }, error = function(e) {
-    write_log(log_Dashboard, "[LOG READ ERROR]", paste("Failed to read:", basename(log_file), "→", e$message))
-    return(data.frame(Date = character(), Time = character(), Event = character(), Details = character(), stringsAsFactors = FALSE))
+    write_log(log_Dashboard, "[LOG READ ERROR]",
+              paste("Failed to read:", basename(log_file), "→", e$message))
+    data.frame(Date = character(), Time = character(),
+               Event = character(), Details = character(),
+               datetime = as.POSIXct(character()),
+               stringsAsFactors = FALSE)
   })
-  df$datetime <- as.POSIXct(paste(df$Date, df$Time), format = "%Y-%m-%d %H:%M:%S")
   df
 }
-
 # -------- Cached Logs for Admin Panel --------
 cached_log_data <- reactiveValues(
   seqmet = NULL,
@@ -701,13 +847,17 @@ cached_log_data <- reactiveValues(
 )
 
 observe({
-  if (file.exists(log_SeqMet)) cached_log_data$seqmet <- read_log_data(log_SeqMet)
-  if (file.exists(log_Dashboard)) cached_log_data$dashboard <- read_log_data(log_Dashboard)
-  if (file.exists(log_Wiki)) cached_log_data$wiki <- read_log_data(log_Wiki)
-  if (file.exists(log_file)) {
-    cached_log_data$login <- read.csv(log_file, stringsAsFactors = FALSE) %>%
-      mutate(datetime = as.POSIXct(paste(date, time), format = "%Y-%m-%d %H:%M:%S"))
-  }
+  tryCatch({
+    if (file.exists(log_SeqMet))   cached_log_data$seqmet    <- read_log_data(log_SeqMet)
+    if (file.exists(log_Dashboard)) cached_log_data$dashboard <- read_log_data(log_Dashboard)
+    if (file.exists(log_Wiki))      cached_log_data$wiki      <- read_log_data(log_Wiki)
+    if (file.exists(log_file)) {
+      cached_log_data$login <- read.csv(log_file, stringsAsFactors = FALSE) %>%
+        mutate(datetime = as.POSIXct(paste(date, time), format = "%Y-%m-%d %H:%M:%S"))
+    }
+  }, error = function(e) {
+    message("⚠️ Log cache load failed: ", e$message)
+  })
 })
 
 # ######################################################################
