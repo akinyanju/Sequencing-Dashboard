@@ -1,9 +1,10 @@
 # ------------------------------------------------------------
 # Logging setup. If some package do not auto install, which i have encountered, then manually launch R using sudo e.g. sudo R then install the package.
 # ------------------------------------------------------------
-base_path <- file.path("/Fake/Path//ShinyAppCodes")
+# base_path comes from configPaths.R, which app.R sources before this file
+# (and even needs base_path already set just to locate this file to source it).
+# Set it in configPaths.R only — don't redefine it here.
 
-#base_path <-"/srv/shiny-server/"
 log_library    <- file.path(base_path, "log", "missing_libraries_log.csv")
 
 # Ensure the log directory exists
@@ -31,7 +32,8 @@ required_packages <- c(
   "scales", "reshape2", "psych", "forcats", "jsonlite", "ggforce", "plotly",
   "keyring", "shinycssloaders", "tidyr", "glue", "cachem", "tools", "stringr",
   "future", "promises", "tictoc", "pryr", "fs", "future.apply", "duckdb", "DBI",
-  "purrr", "magrittr","later", "R.utils"
+  "purrr", "magrittr","later", "R.utils", "rlang", "lubridate", "RColorBrewer", "DT",
+  "digest", "filelock", "pool"
 )
 
 # -------------Ensure a user‐writable library exists-------------
